@@ -76,13 +76,11 @@ test10FraccionDividesFraccionCorrectly
 
 	self assert: fiveHalfs equals: oneHalf / oneFifth! !
 
-!NumeroTest methodsFor: 'tests' stamp: 'JS 5/5/2022 03:41:58'!
+!NumeroTest methodsFor: 'tests' stamp: 'lj 9/30/2022 12:49:37'!
 test11EnteroAddsFraccionCorrectly
-"
-	Ahora empieza la diversion!!
-"
-
-	self assert: (Entero with: 6) / (Entero with: 5) equals: one + oneFifth! !
+	self
+		assert: (Entero with: 6) / (Entero with: 5)
+		equals: one + oneFifth.! !
 
 !NumeroTest methodsFor: 'tests' stamp: 'JS 5/5/2022 03:42:29'!
 test12FraccionAddsEnteroCorrectly
@@ -364,23 +362,23 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:40:55'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'lj 9/30/2022 15:30:31'!
 * aMultiplier
 	(aMultiplier isKindOf: Entero)
 		ifTrue: [ ^ self class with: value * aMultiplier integerValue ]
-		ifFalse: [ ^ aMultiplier * value ].! !
+		ifFalse: [ ^ aMultiplier * (self class with: value) ].! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/30/2022 00:00:18'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'lj 9/30/2022 13:24:24'!
 + anAdder
 	(anAdder isKindOf: Entero)
 		ifTrue: [ ^ self class with: value + anAdder integerValue ]
-		ifFalse: [ ^ anAdder + value ].! !
+		ifFalse: [ ^ anAdder + (self class with: value) ].! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:40:46'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'lj 9/30/2022 15:39:48'!
 - aSubtrahend
 	(aSubtrahend isKindOf: Entero)
 		ifTrue: [ ^ self class with: value - aSubtrahend integerValue ]
-		ifFalse: [ ^ aSubtrahend negated + value ].! !
+		ifFalse: [ ^ aSubtrahend negated + (self class with: value) ].! !
 
 !Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:40:25'!
 / aDivisor
@@ -490,40 +488,41 @@ Numero subclass: #Fraccion
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:21:50'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'lj 9/30/2022 15:31:40'!
 * aMultiplier
-	( aMultiplier isKindOf: Entero )
-		ifTrue: [ ^ numerator * aMultiplier integerValue / denominator ]
+	(aMultiplier isKindOf: Entero)
+		ifTrue: [ ^ numerator * aMultiplier / denominator ]
 		ifFalse: [ ^ numerator * aMultiplier numerator / (denominator * aMultiplier denominator) ].! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:23:22'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'lj 9/30/2022 15:28:01'!
 + anAdder
 	| newNumerator newDenominator |
 	(anAdder isKindOf: Entero)
 		ifTrue: [
-			newNumerator _ numerator + (denominator * anAdder integerValue).
+			newNumerator _ numerator + (denominator * anAdder).
 			newDenominator _ denominator ]
-		ifFalse:
-			[
+		ifFalse: [
 			newNumerator _ numerator * anAdder denominator + (denominator * anAdder numerator).
-			newDenominator _ denominator * anAdder denominator ]. ^ newNumerator / newDenominator.! !
+			newDenominator _ denominator * anAdder denominator ].
+	^ newNumerator / newDenominator.! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:21:36'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'lj 9/30/2022 15:41:25'!
 - aSubtrahend
 	| newNumerator newDenominator |
-	( aSubtrahend isKindOf: Entero )
+	(aSubtrahend isKindOf: Entero)
 		ifTrue: [
-			newNumerator _ numerator - (denominator * aSubtrahend integerValue).
+			newNumerator _ numerator - (denominator * aSubtrahend).
 			newDenominator _ denominator ]
 		ifFalse: [
 			newNumerator _ numerator * aSubtrahend denominator - (denominator * aSubtrahend numerator).
 			newDenominator _ denominator * aSubtrahend denominator ].
 	^ newNumerator / newDenominator.! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'HernanWilkinson 5/7/2016 23:14'!
-/ aDivisor 
-	
-	^(numerator * aDivisor denominator) / (denominator * aDivisor numerator)! !
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'lj 9/30/2022 15:37:43'!
+/ aDivisor
+	(aDivisor isKindOf: Entero)
+		ifTrue: [ ^ numerator / (denominator * aDivisor) ]
+		ifFalse: [ ^ numerator * aDivisor denominator / (denominator * aDivisor numerator) ].! !
 
 
 !Fraccion methodsFor: 'comparing' stamp: 'HernanWilkinson 5/7/2016 20:42'!
