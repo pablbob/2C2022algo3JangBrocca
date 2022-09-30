@@ -364,28 +364,27 @@ Numero subclass: #Entero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 19:47:42'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:40:55'!
 * aMultiplier
-	[ aMultiplier isKindOf: Entero ]
-		ifTrue: [^ self class with: value * aMultiplier integerValue.]
-		ifFalse: [^ aMultiplier * self class with: value]! !
+	(aMultiplier isKindOf: Entero)
+		ifTrue: [ ^ self class with: value * aMultiplier integerValue ]
+		ifFalse: [ ^ aMultiplier * value ].! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 19:39:27'!
-+ anAdder 
-	[anAdder isKindOf: Entero] ifTrue: [^self class with: value + anAdder integerValue]
-	ifFalse: [^ anAdder + (self class with: value)]
-! !
+!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/30/2022 00:00:18'!
++ anAdder
+	(anAdder isKindOf: Entero)
+		ifTrue: [ ^ self class with: value + anAdder integerValue ]
+		ifFalse: [ ^ anAdder + value ].! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 19:44:17'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:40:46'!
 - aSubtrahend
-	[ aSubtrahend isKindOf: Entero ]
-		ifTrue:
-	[^ self class with: value - aSubtrahend integerValue.]
-	ifFalse: [^ aSubtrahend negated + self class with: value].! !
+	(aSubtrahend isKindOf: Entero)
+		ifTrue: [ ^ self class with: value - aSubtrahend integerValue ]
+		ifFalse: [ ^ aSubtrahend negated + value ].! !
 
-!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 20:15:30'!
+!Entero methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:40:25'!
 / aDivisor
-	[ aDivisor isKindOf: Entero ]
+	(aDivisor isKindOf: Entero)
 		ifTrue: [ ^ Fraccion
 				with: (self class with: value)
 				over: aDivisor ]
@@ -491,33 +490,32 @@ Numero subclass: #Fraccion
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 19:46:28'!
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:21:50'!
 * aMultiplier
-	[ aMultiplier isKindOf: Entero ] 
-	ifTrue: [^ numerator * aMultiplier integerValue / denominator.]
-	ifFalse: [ ^ numerator * aMultiplier numerator / (denominator * aMultiplier denominator) ].! !
+	( aMultiplier isKindOf: Entero )
+		ifTrue: [ ^ numerator * aMultiplier integerValue / denominator ]
+		ifFalse: [ ^ numerator * aMultiplier numerator / (denominator * aMultiplier denominator) ].! !
 
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 19:36:29'!
-+ anAdder 
-	
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:23:22'!
++ anAdder
 	| newNumerator newDenominator |
-	[anAdder isKindOf: Entero] 
-	ifTrue:
-		[newNumerator := numerator + (denominator * anAdder integerValue).
-		 newDenominator := denominator.]
-	ifFalse:
-		[newNumerator := (numerator * anAdder denominator) + (denominator * anAdder numerator).		newDenominator := denominator * anAdder denominator.]	
-	^newNumerator / newDenominator ! !
-
-!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 19:42:26'!
-- aSubtrahend
-	| newNumerator newDenominator |
-	[ aSubtrahend isKindOf: Entero ]
+	(anAdder isKindOf: Entero)
 		ifTrue: [
-			newNumerator _ numerator - (denominator * aSubtrahend integerValue).
+			newNumerator _ numerator + (denominator * anAdder integerValue).
 			newDenominator _ denominator ]
 		ifFalse:
 			[
+			newNumerator _ numerator * anAdder denominator + (denominator * anAdder numerator).
+			newDenominator _ denominator * anAdder denominator ]. ^ newNumerator / newDenominator.! !
+
+!Fraccion methodsFor: 'arithmetic operations' stamp: 'PMB 9/29/2022 23:21:36'!
+- aSubtrahend
+	| newNumerator newDenominator |
+	( aSubtrahend isKindOf: Entero )
+		ifTrue: [
+			newNumerator _ numerator - (denominator * aSubtrahend integerValue).
+			newDenominator _ denominator ]
+		ifFalse: [
 			newNumerator _ numerator * aSubtrahend denominator - (denominator * aSubtrahend numerator).
 			newDenominator _ denominator * aSubtrahend denominator ].
 	^ newNumerator / newDenominator.! !
