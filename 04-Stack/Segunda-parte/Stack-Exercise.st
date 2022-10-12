@@ -150,13 +150,13 @@ Object subclass: #OOStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'operations' stamp: 'lj 10/12/2022 13:53:41'!
+!OOStack methodsFor: 'operations' stamp: 'PMB 10/12/2022 19:06:35'!
 pop
-	| auxTop |
-	auxTop := top.
-	top := top next.
-	size := size - 1.
-	^ auxTop pop.! !
+	| poppedValue |
+	poppedValue _ self top.
+	top _ top next.
+	size _ size - 1.
+	^ poppedValue.! !
 
 !OOStack methodsFor: 'operations' stamp: 'lj 10/12/2022 13:23:18'!
 push: anElement
@@ -205,14 +205,10 @@ Object subclass: #SentenceFinderByPrefix
 
 !classDefinition: #Top category: 'Stack-Exercise'!
 Object subclass: #Top
-	instanceVariableNames: 'next value'
+	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
-
-!Top methodsFor: 'operations' stamp: 'PMB 10/11/2022 21:52:06'!
-pop
-	self subclassResponsibility ! !
 
 !Top methodsFor: 'operations' stamp: 'lj 10/12/2022 13:27:17'!
 push: anElement
@@ -226,10 +222,6 @@ push: anElement
 isEmpty
 	self subclassResponsibility ! !
 
-
-!Top methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:38:51'!
-next
-	self subclassResponsibility ! !
 
 !Top methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:26:44'!
 value
@@ -248,18 +240,10 @@ isEmpty
 	^ true.! !
 
 
-!Base methodsFor: 'operations' stamp: 'lj 10/12/2022 13:47:35'!
-pop
-	^ Base stackEmptyErrorDescription.! !
 
-
-!Base methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:38:40'!
-next
-	^self.! !
-
-!Base methodsFor: 'getters' stamp: 'lj 10/12/2022 13:37:54'!
+!Base methodsFor: 'getters' stamp: 'PMB 10/12/2022 19:13:55'!
 value
-	self class stackEmptyErrorDescription.! !
+	self error: self class stackEmptyErrorDescription.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -274,7 +258,7 @@ stackEmptyErrorDescription
 
 !classDefinition: #Element category: 'Stack-Exercise'!
 Top subclass: #Element
-	instanceVariableNames: ''
+	instanceVariableNames: 'next'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
@@ -283,10 +267,6 @@ Top subclass: #Element
 initializeWith: aValue
 	value := aValue! !
 
-
-!Element methodsFor: 'operations' stamp: 'lj 10/12/2022 13:25:24'!
-pop
-	^ self value.! !
 
 
 !Element methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:38:32'!
