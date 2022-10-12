@@ -145,10 +145,43 @@ TestCase subclass: #SentenceFinderByPrefixTest
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: ''
+	instanceVariableNames: 'top size'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!OOStack methodsFor: 'operations' stamp: 'lj 10/12/2022 13:53:41'!
+pop
+	| auxTop |
+	auxTop := top.
+	top := top next.
+	size := size - 1.
+	^ auxTop pop.! !
+
+!OOStack methodsFor: 'operations' stamp: 'lj 10/12/2022 13:23:18'!
+push: anElement
+	top _ top push: anElement.
+	size := size + 1! !
+
+
+!OOStack methodsFor: 'initialization' stamp: 'lj 10/12/2022 13:23:07'!
+initialize
+	top _ Base new.
+	size := 0! !
+
+
+!OOStack methodsFor: 'testing' stamp: 'PMB 10/11/2022 21:44:18'!
+isEmpty
+	^ top isEmpty.! !
+
+
+!OOStack methodsFor: 'getters' stamp: 'lj 10/12/2022 13:23:59'!
+size
+	^ size! !
+
+!OOStack methodsFor: 'getters' stamp: 'lj 10/12/2022 13:38:32'!
+top
+	^ top value.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -168,3 +201,118 @@ Object subclass: #SentenceFinderByPrefix
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+
+!classDefinition: #Top category: 'Stack-Exercise'!
+Object subclass: #Top
+	instanceVariableNames: 'next value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!Top methodsFor: 'operations' stamp: 'PMB 10/11/2022 21:52:06'!
+pop
+	self subclassResponsibility ! !
+
+!Top methodsFor: 'operations' stamp: 'lj 10/12/2022 13:27:17'!
+push: anElement
+	| newTop |
+	newTop _ Element with: anElement.
+	newTop next: self.
+	^ newTop.! !
+
+
+!Top methodsFor: 'testing' stamp: 'PMB 10/11/2022 21:44:28'!
+isEmpty
+	self subclassResponsibility ! !
+
+
+!Top methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:38:51'!
+next
+	self subclassResponsibility ! !
+
+!Top methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:26:44'!
+value
+	^ value.! !
+
+
+!classDefinition: #Base category: 'Stack-Exercise'!
+Top subclass: #Base
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!Base methodsFor: 'testing' stamp: 'PMB 10/11/2022 21:44:53'!
+isEmpty
+	^ true.! !
+
+
+!Base methodsFor: 'operations' stamp: 'lj 10/12/2022 13:47:35'!
+pop
+	^ Base stackEmptyErrorDescription.! !
+
+
+!Base methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:38:40'!
+next
+	^self.! !
+
+!Base methodsFor: 'getters' stamp: 'lj 10/12/2022 13:37:54'!
+value
+	self class stackEmptyErrorDescription.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Base class' category: 'Stack-Exercise'!
+Base class
+	instanceVariableNames: ''!
+
+!Base class methodsFor: 'error descriptions' stamp: 'lj 10/12/2022 13:10:30'!
+stackEmptyErrorDescription
+	^ 'Stack is empty'.! !
+
+
+!classDefinition: #Element category: 'Stack-Exercise'!
+Top subclass: #Element
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!Element methodsFor: 'initialization' stamp: 'PMB 10/11/2022 21:54:54'!
+initializeWith: aValue
+	value := aValue! !
+
+
+!Element methodsFor: 'operations' stamp: 'lj 10/12/2022 13:25:24'!
+pop
+	^ self value.! !
+
+
+!Element methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:38:32'!
+next
+	^next.! !
+
+!Element methodsFor: 'getters' stamp: 'lj 10/12/2022 13:39:22'!
+value
+	^ value.! !
+
+
+!Element methodsFor: 'setters' stamp: 'lj 10/12/2022 13:44:02'!
+next: aValue
+	next := aValue ! !
+
+
+!Element methodsFor: 'testing' stamp: 'PMB 10/11/2022 21:45:03'!
+isEmpty
+	^ false! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Element class' category: 'Stack-Exercise'!
+Element class
+	instanceVariableNames: ''!
+
+!Element class methodsFor: 'initialization' stamp: 'lj 10/12/2022 13:17:24'!
+with: aValue
+	^Element new initializeWith: aValue.! !
