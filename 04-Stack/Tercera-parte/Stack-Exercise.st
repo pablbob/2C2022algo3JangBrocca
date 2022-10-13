@@ -142,7 +142,7 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:46:02'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/13/2022 19:48:15'!
 test01CannotSearchWithEmptyPrefix
 	| stack sentenceFinder |
 	stack _ OOStack new.
@@ -156,10 +156,10 @@ test01CannotSearchWithEmptyPrefix
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self
-				assert: SentenceFinderByPrefix invalidPrefixErrorDescription 
+				assert: 'Prefix should not be empty nor contain spaces'
 				equals: anError messageText ].! !
 
-!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:47:23'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/13/2022 19:48:20'!
 test02CannotSearchWithPrefixContainingSpaces
 	| stack sentenceFinder |
 	stack _ OOStack new.
@@ -173,10 +173,10 @@ test02CannotSearchWithPrefixContainingSpaces
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 			self
-				assert: SentenceFinderByPrefix invalidPrefixErrorDescription
+				assert: 'Prefix should not be empty nor contain spaces'
 				equals: anError messageText ].! !
 
-!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:48:40'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/12/2022 20:48:40'!
 test03CannotSearchAnEmptyStack
 	| stack sentenceFinder |
 	stack _ OOStack new.
@@ -192,7 +192,7 @@ test03CannotSearchAnEmptyStack
 				assert: SentenceFinderByPrefix emptyStackErrorDescription 
 				equals: anError messageText ].! !
 
-!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:53:15'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/12/2022 20:53:15'!
 test04SearchWithNoMatchesRaisesError
 	| stack sentenceFinder |
 	stack _ OOStack new.
@@ -209,7 +209,7 @@ test04SearchWithNoMatchesRaisesError
 				assert: SentenceFinderByPrefix noMatchesFoundErrorDescription 
 				equals: anError messageText ].! !
 
-!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:51:16'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/12/2022 20:51:16'!
 test05MatchingIsCaseSensitive
 	| stack sentenceFinder |
 	stack _ OOStack new.
@@ -226,8 +226,8 @@ test05MatchingIsCaseSensitive
 				assert: SentenceFinderByPrefix noMatchesFoundErrorDescription
 				equals: anError messageText ].! !
 
-!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 21:17:04'!
-test06SuccessfulSearchShouldReturnCollectionWithMatchingStringsOnly
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/13/2022 18:31:12'!
+test06SuccessfulSearchReturnsCollectionWithMatchingStringsOnly
 	| stack sentenceFinder matches |
 	stack _ OOStack new.
 	sentenceFinder _ SentenceFinderByPrefix new.
@@ -242,6 +242,61 @@ test06SuccessfulSearchShouldReturnCollectionWithMatchingStringsOnly
 		equals: (OrderedCollection
 		with: 'Hello, my name is Alan'
 		with: 'Hello world!!').! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/13/2022 18:38:20'!
+test07StringsThatContainPrefixButNotAtTheStartDoNotMatch
+	| stack sentenceFinder matches |
+	stack _ OOStack new.
+	sentenceFinder _ SentenceFinderByPrefix new.
+	stack push: 'knowledge is power'.
+	stack push: 'I know that I know nothing'.
+	stack push: 'know yourself'.
+	stack push: 'what do you know?'.
+	matches _ sentenceFinder
+		find: 'know'
+		in: stack.
+	self
+		assert: matches
+		equals:
+			(OrderedCollection
+				with: 'know yourself'
+				with: 'knowledge is power').! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/13/2022 18:42:31'!
+test08ObjectsInTheStackOtherThanStringsAreIgnored
+	| stack sentenceFinder matches |
+	stack _ OOStack new.
+	sentenceFinder _ SentenceFinderByPrefix new.
+	stack push: '1940'.
+	stack push: 1945.
+	stack push: #('1969' ).
+	matches _ sentenceFinder
+		find: '19'
+		in: stack.
+	self
+		assert: matches
+		equals: (OrderedCollection with: '1940').! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/13/2022 18:57:45'!
+test09ObjectsInTheStackKeepOriginalOrderAfterSearch
+	| stack sentenceFinder |
+	stack _ OOStack new.
+	sentenceFinder _ SentenceFinderByPrefix new.
+	stack push: 'This is the first element'.
+	stack push: 'This is the second element'.
+	stack push: 'This is the third element'.
+	sentenceFinder
+		find: 'This'
+		in: stack.
+	self
+		assert: stack pop
+		equals: 'This is the third element'.
+		self
+		assert: stack pop
+		equals: 'This is the second element'.
+		self
+		assert: stack pop
+		equals: 'This is the first element'.! !
 
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
@@ -296,6 +351,94 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
+!classDefinition: #Prefix category: 'Stack-Exercise'!
+Object subclass: #Prefix
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!Prefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:29:33'!
+initializeWith: aString
+	self subclassResponsibility ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Prefix class' category: 'Stack-Exercise'!
+Prefix class
+	instanceVariableNames: ''!
+
+!Prefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:26:15'!
+isValid: aString
+	^ self subclassResponsibility ! !
+
+!Prefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:24:50'!
+with: aString
+^ (self subclasses detect: [ :aSubclass |
+		aSubclass isValid: aString ]) new initializeWith: aString .! !
+
+
+!classDefinition: #NullPrefix category: 'Stack-Exercise'!
+Prefix subclass: #NullPrefix
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!NullPrefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:30:34'!
+initializeWith: aString
+	self error: self class invalidPrefixErrorDescription .! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'NullPrefix class' category: 'Stack-Exercise'!
+NullPrefix class
+	instanceVariableNames: ''!
+
+!NullPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:28:45'!
+invalidPrefixErrorDescription
+	^ 'Prefix should not be empty nor contain spaces'.! !
+
+!NullPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:59:25'!
+isValid: aString
+	^ aString = '' |
+		((aString
+			findString: ' '
+			startingAt: 1) > 0).! !
+
+
+!classDefinition: #ValidPrefix category: 'Stack-Exercise'!
+Prefix subclass: #ValidPrefix
+	instanceVariableNames: 'stringValue'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!ValidPrefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:37:31'!
+checkForMatch: aString andStoreIn: aCollection
+	(aString
+		is: stringValue
+		substringAt: 1) ifTrue: [ aCollection add: aString ].
+	^ aCollection! !
+
+!ValidPrefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:29:59'!
+initializeWith: aString
+	stringValue := aString.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ValidPrefix class' category: 'Stack-Exercise'!
+ValidPrefix class
+	instanceVariableNames: ''!
+
+!ValidPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:59:32'!
+isValid: aString
+	^ aString ~= '' &
+		((aString
+			findString: ' '
+			startingAt: 1) = 0).! !
+
+
 !classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
 	instanceVariableNames: ''
@@ -303,26 +446,40 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/12/2022 21:20:50'!
-find: aPrefix in: aStack
-	| matches auxStack actualElement |
-	aPrefix = '' ifTrue: [ self error: self class invalidPrefixErrorDescription ].
-	(aPrefix
-		findString: ' '
-		startingAt: 1) > 0 ifTrue: [ self error: self class invalidPrefixErrorDescription ].
+!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 20:00:41'!
+find: aPrefixString in: aStack
+	| matches |
 	aStack isEmpty ifTrue: [ self error: self class emptyStackErrorDescription ].
+	matches _ self
+		searchStack: aStack
+		forStringsStartingWith: (Prefix with: aPrefixString).
+		matches isEmpty ifTrue: [ self error: self class noMatchesFoundErrorDescription ].
+	^ matches.! !
+
+!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 19:19:09'!
+moveElementsFrom: aStack to: anotherStack checkingFor: aPrefix
+	| matches currentElement |
 	matches _ OrderedCollection new.
-	auxStack _ OOStack new.
 	[ aStack isEmpty ] whileFalse: [
-		actualElement _ aStack pop.
-		(actualElement
-			is: aPrefix
-			substringAt: 1) ifTrue: [ matches add: actualElement ].
-		auxStack push: actualElement ].
-	[ auxStack isEmpty ] whileFalse: [
-		actualElement _ auxStack pop.
-		aStack push: actualElement ].
-	matches isEmpty ifTrue: [ self error: self class noMatchesFoundErrorDescription ]. ^ matches.! !
+		currentElement _ aStack pop.
+		(currentElement isKindOf: String) ifTrue: [
+			matches := aPrefix checkForMatch: currentElement andStoreIn: matches.
+			anotherStack push: currentElement ]].
+	^ matches.! !
+
+!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 20:00:36'!
+searchStack: aStack forStringsStartingWith: aPrefix
+	| matches auxStack |
+	auxStack _ OOStack new.
+	matches _ self
+		moveElementsFrom: aStack
+		to: auxStack
+		checkingFor: aPrefix.
+	self
+		moveElementsFrom: auxStack
+		to: aStack
+		checkingFor: aPrefix.
+	^ matches.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -333,10 +490,6 @@ SentenceFinderByPrefix class
 !SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:43:05'!
 emptyStackErrorDescription
 	^ 'Stack is empty'.! !
-
-!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:42:35'!
-invalidPrefixErrorDescription
-	^ 'Prefix should not be empty nor contain spaces'.! !
 
 !SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:41:10'!
 noMatchesFoundErrorDescription
