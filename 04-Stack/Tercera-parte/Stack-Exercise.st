@@ -298,6 +298,45 @@ test09ObjectsInTheStackKeepOriginalOrderAfterSearch
 		assert: stack pop
 		equals: 'This is the first element'.! !
 
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'lj 10/13/2022 21:23:46'!
+test10SearchWithMatchingIdenticalStringsReturnsCollectionWithAllOfThem
+	| stack sentenceFinder matches |
+	stack _ OOStack new.
+	sentenceFinder _ SentenceFinderByPrefix new.
+	stack push: 'Hello world!!'.
+	stack push: 'Goodbye'.
+	stack push: 'Hello world!!'.
+	stack push: 'See you tomorrow!!'.
+	stack push: 'Hello world!!'.
+	matches _ sentenceFinder
+		find: 'Hello'
+		in: stack.
+	self
+		assert: matches
+		equals:
+			(OrderedCollection
+				with: 'Hello world!!'
+				with: 'Hello world!!'
+				with: 'Hello world!!').! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'lj 10/13/2022 21:35:35'!
+test11SearchWithOneMatchReturnsCollectionWithOneString
+	| stack sentenceFinder matches |
+	stack _ OOStack new.
+	sentenceFinder _ SentenceFinderByPrefix new.
+	stack push: 'Hello world!!'.
+	stack push: 'Goodbye'.
+	stack push: 'See you tomorrow!!'.
+	stack push: 'hello everyone!!'.
+	matches _ sentenceFinder
+		find: 'Hello'
+		in: stack.
+	self
+		assert: matches
+		equals:
+			(OrderedCollection
+				with: 'Hello world!!').! !
+
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
@@ -358,7 +397,7 @@ Object subclass: #Prefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!Prefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:29:33'!
+!Prefix methodsFor: 'initialization' stamp: 'PMB 10/13/2022 19:29:33'!
 initializeWith: aString
 	self subclassResponsibility ! !
 
@@ -368,14 +407,15 @@ initializeWith: aString
 Prefix class
 	instanceVariableNames: ''!
 
-!Prefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:26:15'!
-isValid: aString
-	^ self subclassResponsibility ! !
-
-!Prefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:24:50'!
+!Prefix class methodsFor: 'initialization' stamp: 'PMB 10/13/2022 19:24:50'!
 with: aString
 ^ (self subclasses detect: [ :aSubclass |
 		aSubclass isValid: aString ]) new initializeWith: aString .! !
+
+
+!Prefix class methodsFor: 'validation' stamp: 'PMB 10/13/2022 19:26:15'!
+isValid: aString
+	^ self subclassResponsibility ! !
 
 
 !classDefinition: #NullPrefix category: 'Stack-Exercise'!
@@ -385,7 +425,7 @@ Prefix subclass: #NullPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!NullPrefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:30:34'!
+!NullPrefix methodsFor: 'initialization' stamp: 'PMB 10/13/2022 19:30:34'!
 initializeWith: aString
 	self error: self class invalidPrefixErrorDescription .! !
 
@@ -395,11 +435,12 @@ initializeWith: aString
 NullPrefix class
 	instanceVariableNames: ''!
 
-!NullPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:28:45'!
+!NullPrefix class methodsFor: 'error descriptions' stamp: 'PMB 10/13/2022 19:28:45'!
 invalidPrefixErrorDescription
 	^ 'Prefix should not be empty nor contain spaces'.! !
 
-!NullPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:59:25'!
+
+!NullPrefix class methodsFor: 'validation' stamp: 'PMB 10/13/2022 19:59:25'!
 isValid: aString
 	^ aString = '' |
 		((aString
@@ -414,14 +455,15 @@ Prefix subclass: #ValidPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!ValidPrefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:37:31'!
+!ValidPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 19:37:31'!
 checkForMatch: aString andStoreIn: aCollection
 	(aString
 		is: stringValue
 		substringAt: 1) ifTrue: [ aCollection add: aString ].
 	^ aCollection! !
 
-!ValidPrefix methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:29:59'!
+
+!ValidPrefix methodsFor: 'initialization' stamp: 'PMB 10/13/2022 19:29:59'!
 initializeWith: aString
 	stringValue := aString.! !
 
@@ -431,7 +473,7 @@ initializeWith: aString
 ValidPrefix class
 	instanceVariableNames: ''!
 
-!ValidPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/13/2022 19:59:32'!
+!ValidPrefix class methodsFor: 'validation' stamp: 'lj 10/13/2022 20:48:57'!
 isValid: aString
 	^ aString ~= '' &
 		((aString
@@ -446,14 +488,14 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 20:00:41'!
+!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'lj 10/13/2022 20:45:01'!
 find: aPrefixString in: aStack
 	| matches |
 	aStack isEmpty ifTrue: [ self error: self class emptyStackErrorDescription ].
 	matches _ self
 		searchStack: aStack
 		forStringsStartingWith: (Prefix with: aPrefixString).
-		matches isEmpty ifTrue: [ self error: self class noMatchesFoundErrorDescription ].
+	matches isEmpty ifTrue: [ self error: self class noMatchesFoundErrorDescription ].
 	^ matches.! !
 
 !SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 19:19:09'!
@@ -487,11 +529,11 @@ searchStack: aStack forStringsStartingWith: aPrefix
 SentenceFinderByPrefix class
 	instanceVariableNames: ''!
 
-!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:43:05'!
+!SentenceFinderByPrefix class methodsFor: 'error descriptions' stamp: 'PMB 10/12/2022 20:43:05'!
 emptyStackErrorDescription
 	^ 'Stack is empty'.! !
 
-!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'PMB 10/12/2022 20:41:10'!
+!SentenceFinderByPrefix class methodsFor: 'error descriptions' stamp: 'PMB 10/12/2022 20:41:10'!
 noMatchesFoundErrorDescription
 	^ 'No matches found'! !
 
