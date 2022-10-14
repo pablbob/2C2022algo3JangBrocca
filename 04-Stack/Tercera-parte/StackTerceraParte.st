@@ -1,146 +1,9 @@
-!classDefinition: #OOStackTest category: 'Stack-Exercise'!
-TestCase subclass: #OOStackTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 18:00:02'!
-test01StackShouldBeEmptyWhenCreated
-
-	| stack |
-	stack := OOStack new.
-	
-	self assert: stack isEmpty! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:59:57'!
-test02PushAddElementsToTheStack
-
-	| stack |
-	stack := OOStack new.
-	
-	stack push: 'something'.
-	
-	self deny: stack isEmpty! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:59:50'!
-test03PopRemovesElementsFromTheStack
-
-	| stack |
-	stack := OOStack new.
-	stack push: 'something'.
-	
-	stack pop.
-	
-	self assert: stack isEmpty! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:59:43'!
-test04PopReturnsLastPushedObject
-
-	| stack pushedObject |
-	stack := OOStack new.
-	pushedObject := 'something'.
-	
-	stack push: pushedObject.
-	
-	self assert: pushedObject equals: stack pop! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:56:59'!
-test05StackBehavesLIFO
-
-	| stack firstPushedObject secondPushedObject |
-	
-	stack := OOStack new.
-	firstPushedObject := 'first'.
-	secondPushedObject := 'second'.
-	
-	stack push: firstPushedObject.
-	stack push: secondPushedObject.
-	
-	self assert: secondPushedObject equals: stack pop.
-	self assert: firstPushedObject equals: stack pop.
-	self assert: stack isEmpty 
-	! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 18:00:26'!
-test06TopReturnsLastPushedObject
-
-	| stack pushedObject |
-	stack := OOStack new.
-	pushedObject := 'something'.
-	
-	stack push: pushedObject.
-	
-	self assert: pushedObject equals: stack top.
-	! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:58:27'!
-test07TopDoesNotRemoveObjectFromStack
-
-	| stack pushedObject |
-	
-	stack := OOStack new.
-	pushedObject := 'something'.
-	
-	stack push: pushedObject.
-	
-	self assert: 1 equals: stack size.
-	stack top.
-	self assert: 1 equals: stack size.
-	! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:58:44'!
-test08CanNotPopWhenThereAreNoObjectsInTheStack
-
-	| stack  |
-	
-	stack := OOStack new.
-	self
-		should: [ stack pop ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: OOStack stackEmptyErrorDescription equals: anError messageText ]
-		
-! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:58:56'!
-test09CanNotPopWhenThereAreNoObjectsInTheStackAndTheStackHadObjects
-
-	| stack  |
-	
-	stack := OOStack new.
-	stack push: 'something'.
-	stack pop.
-	
-	self
-		should: [ stack pop ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: OOStack stackEmptyErrorDescription equals: anError messageText ]
-		
-! !
-
-!OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 17:59:07'!
-test10CanNotTopWhenThereAreNoObjectsInTheStack
-
-	| stack  |
-	
-	stack := OOStack new.
-	self
-		should: [ stack top ]
-		raise: Error - MessageNotUnderstood 
-		withExceptionDo: [ :anError |
-			self assert: OOStack stackEmptyErrorDescription equals: anError messageText ]
-		
-! !
-
-
-!classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
+!classDefinition: #SentenceFinderByPrefixTest category: 'StackTerceraParte'!
 TestCase subclass: #SentenceFinderByPrefixTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'PMB 10/13/2022 19:48:15'!
 test01CannotSearchWithEmptyPrefix
@@ -338,12 +201,12 @@ test11SearchWithOneMatchReturnsCollectionWithOneString
 				with: 'Hello world!!').! !
 
 
-!classDefinition: #OOStack category: 'Stack-Exercise'!
+!classDefinition: #OOStack category: 'StackTerceraParte'!
 Object subclass: #OOStack
 	instanceVariableNames: 'top size'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !OOStack methodsFor: 'operations' stamp: 'PMB 10/12/2022 19:06:35'!
 pop
@@ -380,7 +243,7 @@ top
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'OOStack class' category: 'Stack-Exercise'!
+!classDefinition: 'OOStack class' category: 'StackTerceraParte'!
 OOStack class
 	instanceVariableNames: ''!
 
@@ -390,12 +253,12 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #Prefix category: 'Stack-Exercise'!
+!classDefinition: #Prefix category: 'StackTerceraParte'!
 Object subclass: #Prefix
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !Prefix methodsFor: 'initialization' stamp: 'PMB 10/13/2022 19:29:33'!
 initializeWith: aString
@@ -403,7 +266,7 @@ initializeWith: aString
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Prefix class' category: 'Stack-Exercise'!
+!classDefinition: 'Prefix class' category: 'StackTerceraParte'!
 Prefix class
 	instanceVariableNames: ''!
 
@@ -418,12 +281,12 @@ isValid: aString
 	^ self subclassResponsibility ! !
 
 
-!classDefinition: #NullPrefix category: 'Stack-Exercise'!
+!classDefinition: #NullPrefix category: 'StackTerceraParte'!
 Prefix subclass: #NullPrefix
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !NullPrefix methodsFor: 'initialization' stamp: 'PMB 10/13/2022 19:30:34'!
 initializeWith: aString
@@ -431,7 +294,7 @@ initializeWith: aString
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'NullPrefix class' category: 'Stack-Exercise'!
+!classDefinition: 'NullPrefix class' category: 'StackTerceraParte'!
 NullPrefix class
 	instanceVariableNames: ''!
 
@@ -448,12 +311,12 @@ isValid: aString
 			startingAt: 1) > 0).! !
 
 
-!classDefinition: #ValidPrefix category: 'Stack-Exercise'!
+!classDefinition: #ValidPrefix category: 'StackTerceraParte'!
 Prefix subclass: #ValidPrefix
 	instanceVariableNames: 'stringValue'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !ValidPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 19:37:31'!
 checkForMatch: aString andStoreIn: aCollection
@@ -469,7 +332,7 @@ initializeWith: aString
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'ValidPrefix class' category: 'Stack-Exercise'!
+!classDefinition: 'ValidPrefix class' category: 'StackTerceraParte'!
 ValidPrefix class
 	instanceVariableNames: ''!
 
@@ -481,24 +344,14 @@ isValid: aString
 			startingAt: 1) = 0).! !
 
 
-!classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
+!classDefinition: #SentenceFinderByPrefix category: 'StackTerceraParte'!
 Object subclass: #SentenceFinderByPrefix
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
-!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'lj 10/13/2022 20:45:01'!
-find: aPrefixString in: aStack
-	| matches |
-	aStack isEmpty ifTrue: [ self error: self class emptyStackErrorDescription ].
-	matches _ self
-		searchStack: aStack
-		forStringsStartingWith: (Prefix with: aPrefixString).
-	matches isEmpty ifTrue: [ self error: self class noMatchesFoundErrorDescription ].
-	^ matches.! !
-
-!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 19:19:09'!
+!SentenceFinderByPrefix methodsFor: 'operations-private' stamp: 'PMB 10/13/2022 19:19:09'!
 moveElementsFrom: aStack to: anotherStack checkingFor: aPrefix
 	| matches currentElement |
 	matches _ OrderedCollection new.
@@ -509,7 +362,7 @@ moveElementsFrom: aStack to: anotherStack checkingFor: aPrefix
 			anotherStack push: currentElement ]].
 	^ matches.! !
 
-!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'PMB 10/13/2022 20:00:36'!
+!SentenceFinderByPrefix methodsFor: 'operations-private' stamp: 'PMB 10/13/2022 20:00:36'!
 searchStack: aStack forStringsStartingWith: aPrefix
 	| matches auxStack |
 	auxStack _ OOStack new.
@@ -523,9 +376,20 @@ searchStack: aStack forStringsStartingWith: aPrefix
 		checkingFor: aPrefix.
 	^ matches.! !
 
+
+!SentenceFinderByPrefix methodsFor: 'operations' stamp: 'lj 10/13/2022 20:45:01'!
+find: aPrefixString in: aStack
+	| matches |
+	aStack isEmpty ifTrue: [ self error: self class emptyStackErrorDescription ].
+	matches _ self
+		searchStack: aStack
+		forStringsStartingWith: (Prefix with: aPrefixString).
+	matches isEmpty ifTrue: [ self error: self class noMatchesFoundErrorDescription ].
+	^ matches.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'SentenceFinderByPrefix class' category: 'Stack-Exercise'!
+!classDefinition: 'SentenceFinderByPrefix class' category: 'StackTerceraParte'!
 SentenceFinderByPrefix class
 	instanceVariableNames: ''!
 
@@ -538,12 +402,12 @@ noMatchesFoundErrorDescription
 	^ 'No matches found'! !
 
 
-!classDefinition: #Top category: 'Stack-Exercise'!
+!classDefinition: #Top category: 'StackTerceraParte'!
 Object subclass: #Top
 	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !Top methodsFor: 'operations' stamp: 'lj 10/12/2022 13:27:17'!
 push: anElement
@@ -563,12 +427,12 @@ value
 	self subclassResponsibility ! !
 
 
-!classDefinition: #Base category: 'Stack-Exercise'!
+!classDefinition: #Base category: 'StackTerceraParte'!
 Top subclass: #Base
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !Base methodsFor: 'testing' stamp: 'PMB 10/11/2022 21:44:53'!
 isEmpty
@@ -581,7 +445,7 @@ value
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Base class' category: 'Stack-Exercise'!
+!classDefinition: 'Base class' category: 'StackTerceraParte'!
 Base class
 	instanceVariableNames: ''!
 
@@ -590,12 +454,12 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'.! !
 
 
-!classDefinition: #Element category: 'Stack-Exercise'!
+!classDefinition: #Element category: 'StackTerceraParte'!
 Top subclass: #Element
 	instanceVariableNames: 'next'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackTerceraParte'!
 
 !Element methodsFor: 'initialization' stamp: 'PMB 10/11/2022 21:54:54'!
 initializeWith: aValue
@@ -622,7 +486,7 @@ isEmpty
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Element class' category: 'Stack-Exercise'!
+!classDefinition: 'Element class' category: 'StackTerceraParte'!
 Element class
 	instanceVariableNames: ''!
 

@@ -1,9 +1,9 @@
-!classDefinition: #OOStackTest category: 'Stack-Exercise'!
+!classDefinition: #OOStackTest category: 'StackSegundaParte'!
 TestCase subclass: #OOStackTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackSegundaParte'!
 
 !OOStackTest methodsFor: 'test' stamp: 'JMB 10/8/2022 18:00:02'!
 test01StackShouldBeEmptyWhenCreated
@@ -135,20 +135,12 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 ! !
 
 
-!classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
-TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-
-!classDefinition: #OOStack category: 'Stack-Exercise'!
+!classDefinition: #OOStack category: 'StackSegundaParte'!
 Object subclass: #OOStack
 	instanceVariableNames: 'top size'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackSegundaParte'!
 
 !OOStack methodsFor: 'operations' stamp: 'PMB 10/12/2022 19:06:35'!
 pop
@@ -185,7 +177,7 @@ top
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'OOStack class' category: 'Stack-Exercise'!
+!classDefinition: 'OOStack class' category: 'StackSegundaParte'!
 OOStack class
 	instanceVariableNames: ''!
 
@@ -195,20 +187,12 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
-Object subclass: #SentenceFinderByPrefix
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Stack-Exercise'!
-
-
-!classDefinition: #Top category: 'Stack-Exercise'!
+!classDefinition: #Top category: 'StackSegundaParte'!
 Object subclass: #Top
 	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackSegundaParte'!
 
 !Top methodsFor: 'operations' stamp: 'lj 10/12/2022 13:27:17'!
 push: anElement
@@ -223,22 +207,21 @@ isEmpty
 	self subclassResponsibility ! !
 
 
-!Top methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:26:44'!
+!Top methodsFor: 'getters' stamp: 'PMB 10/12/2022 20:02:03'!
 value
-	^ value.! !
+	self subclassResponsibility ! !
 
 
-!classDefinition: #Base category: 'Stack-Exercise'!
+!classDefinition: #Base category: 'StackSegundaParte'!
 Top subclass: #Base
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackSegundaParte'!
 
 !Base methodsFor: 'testing' stamp: 'PMB 10/11/2022 21:44:53'!
 isEmpty
 	^ true.! !
-
 
 
 !Base methodsFor: 'getters' stamp: 'PMB 10/12/2022 19:13:55'!
@@ -247,7 +230,7 @@ value
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Base class' category: 'Stack-Exercise'!
+!classDefinition: 'Base class' category: 'StackSegundaParte'!
 Base class
 	instanceVariableNames: ''!
 
@@ -256,17 +239,16 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'.! !
 
 
-!classDefinition: #Element category: 'Stack-Exercise'!
+!classDefinition: #Element category: 'StackSegundaParte'!
 Top subclass: #Element
 	instanceVariableNames: 'next'
 	classVariableNames: ''
 	poolDictionaries: ''
-	category: 'Stack-Exercise'!
+	category: 'StackSegundaParte'!
 
 !Element methodsFor: 'initialization' stamp: 'PMB 10/11/2022 21:54:54'!
 initializeWith: aValue
 	value := aValue! !
-
 
 
 !Element methodsFor: 'getters' stamp: 'PMB 10/11/2022 21:38:32'!
@@ -289,7 +271,7 @@ isEmpty
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'Element class' category: 'Stack-Exercise'!
+!classDefinition: 'Element class' category: 'StackSegundaParte'!
 Element class
 	instanceVariableNames: ''!
 
