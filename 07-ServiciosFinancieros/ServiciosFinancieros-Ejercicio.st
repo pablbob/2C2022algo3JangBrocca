@@ -101,6 +101,11 @@ value
 
 	self subclassResponsibility ! !
 
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'PMB 11/4/2022 19:30:55'!
+affect: aBalance
+	self subclassResponsibility ! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'AccountTransaction class' category: 'ServiciosFinancieros-Ejercicio'!
@@ -136,6 +141,11 @@ value
 
 	^ value! !
 
+
+!Deposit methodsFor: 'as yet unclassified' stamp: 'PMB 11/4/2022 19:30:13'!
+affect: aBalance
+	^ aBalance + value.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Deposit class' category: 'ServiciosFinancieros-Ejercicio'!
@@ -166,6 +176,11 @@ value
 
 	^ value! !
 
+
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'PMB 11/4/2022 19:30:43'!
+affect: aBalance
+	^ aBalance - value.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Withdraw class' category: 'ServiciosFinancieros-Ejercicio'!
@@ -191,10 +206,13 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HAW 5/23/2019 15:19:32'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PMB 11/4/2022 19:29:00'!
 balance
-
-	^transactions sum: [ :aTransaction | aTransaction value ] ifEmpty: [ 0 ]! !
+	| aBalance |
+	aBalance _ 0.
+	transactions do: [ :aTransaction |
+		aBalance _ aTransaction affect: aBalance ].
+	^ aBalance.! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
 hasRegistered: aTransaction
