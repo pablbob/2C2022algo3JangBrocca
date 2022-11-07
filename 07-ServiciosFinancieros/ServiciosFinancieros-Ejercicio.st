@@ -88,6 +88,41 @@ test07AccountKnowsItsTransactions
 	self assert: (account transactions includes: deposit).
 ! !
 
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PMB 11/7/2022 19:29:13'!
+test08TransferIncreasesBalanceOnReceptiveAccountAndDecreasesSameAmountOnEmittingAccount
+	| receivingAccount emittingAccount |
+	receivingAccount _ ReceptiveAccount new.
+	emittingAccount _ ReceptiveAccount new.
+	Deposit
+		register: 200 * peso
+		on: emittingAccount.
+	Transfer
+		register: 100 * peso
+		from: emittingAccount
+		to: receivingAccount.
+	self
+		assert: 100 * peso
+		equals: emittingAccount balance.
+	self
+		assert: 100 * peso
+		equals: receivingAccount balance.! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PMB 11/7/2022 19:40:18'!
+test09TransferEmittingAccountWithdrawValueMustBePositive
+	| receivingAccount emittingAccount transferValue |
+	receivingAccount _ ReceptiveAccount new.
+	emittingAccount _ ReceptiveAccount new.
+	Deposit
+		register: 50 * peso
+		on: emittingAccount.
+	transferValue _ (Transfer
+		register: 50 * peso
+		from: emittingAccount
+		to: receivingAccount) value.
+	self
+		assert: transferValue 
+		equals: (Withdraw register: 50 * peso on: emittingAccount) value.! !
+
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
@@ -158,6 +193,50 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
+!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
+AccountTransaction subclass: #Transfer
+	instanceVariableNames: 'value deposit withdraw'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 19:52:23'!
+initializeFor: aValue withDeposit: aDeposit andWithdraw: aWithdraw
+	value _ aValue .
+	deposit _ aDeposit .
+	withdraw _ aWithdraw .! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 20:50:59'!
+value
+ ^value.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
+Transfer class
+	instanceVariableNames: ''!
+
+!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/7/2022 19:54:05'!
+for: aValue withDeposit: transferDeposit andWithdraw: transferWithdraw
+	^ self new
+		initializeFor: aValue
+		withDeposit: transferDeposit
+		andWithdraw: transferWithdraw.! !
+
+!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/7/2022 20:50:24'!
+register: aValue from: anEmittingAccount to: aReceivingAccount
+	| transferDeposit transferWithdraw transfer |
+	transferDeposit _ Deposit for: aValue.
+	transferWithdraw _ Withdraw for: aValue.
+	transfer _ self
+		for: aValue
+		withDeposit: transferDeposit
+		andWithdraw: transferWithdraw.
+	anEmittingAccount register: transferWithdraw .
+	aReceivingAccount register: transferDeposit.
+	^ transfer.! !
+
+
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Withdraw
 	instanceVariableNames: 'value'
@@ -206,10 +285,10 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PMB 11/4/2022 19:29:00'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PMB 11/7/2022 20:20:20'!
 balance
 	| aBalance |
-	aBalance _ 0.
+	aBalance _ 0 * peso.
 	transactions do: [ :aTransaction |
 		aBalance _ aTransaction affect: aBalance ].
 	^ aBalance.! !
