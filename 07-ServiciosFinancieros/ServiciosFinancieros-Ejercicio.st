@@ -1,3 +1,53 @@
+!classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #PortfolioTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/8/2022 21:27:07'!
+test01PortfolioHasBalanceOfZeroWhenCreated
+	| portfolio |
+	portfolio _ Portfolio new.
+	self
+		assert: 0 * peso
+		equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/8/2022 21:27:36'!
+test02SingleAccountPortfolioHasSameBalanceAsItsAccount
+	| portfolio account |
+	portfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	Deposit
+		register: 100 * peso
+		on: account.
+	portfolio add: account.
+	self
+		assert: 100 * peso
+		equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/8/2022 21:34:17'!
+test03PortfolioBalanceIsEqualToAccumulatedBalanceOfAllAccounts
+	| portfolio account1 account2 |
+	portfolio _ Portfolio new.
+	account1 _ ReceptiveAccount new.
+	account2 _ ReceptiveAccount new.
+
+	Deposit
+		register: 100 * peso
+		on: account1.
+	Deposit
+		register: 200 * peso
+		on: account2.
+		
+	portfolio add: account1.
+	portfolio add: account2.
+
+	self
+		assert: 300 * peso
+		equals: portfolio balance.! !
+
+
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
 	instanceVariableNames: ''
@@ -107,21 +157,66 @@ test08TransferIncreasesBalanceOnReceptiveAccountAndDecreasesSameAmountOnEmitting
 		assert: 100 * peso
 		equals: receivingAccount balance.! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PMB 11/7/2022 19:40:18'!
-test09TransferEmittingAccountWithdrawValueMustBePositive
-	| receivingAccount emittingAccount transferValue |
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PMB 11/8/2022 20:34:25'!
+test09TransferValueCannotBeZero
+	| receivingAccount emittingAccount |
 	receivingAccount _ ReceptiveAccount new.
 	emittingAccount _ ReceptiveAccount new.
-	Deposit
-		register: 50 * peso
-		on: emittingAccount.
-	transferValue _ (Transfer
-		register: 50 * peso
-		from: emittingAccount
-		to: receivingAccount) value.
 	self
-		assert: transferValue 
-		equals: (Withdraw register: 50 * peso on: emittingAccount) value.! !
+		should: [
+			Transfer
+				register: 0 * peso
+				from: emittingAccount
+				to: receivingAccount ]
+		raise: Error withExceptionDo: [ :anError |
+			self
+				assert: Transfer nonPositiveTransferValueErrorDescription
+				equals: anError messageText ].! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PMB 11/8/2022 20:38:26'!
+test10TransferValueCannotBeNegative
+	| receivingAccount emittingAccount |
+	receivingAccount _ ReceptiveAccount new.
+	emittingAccount _ ReceptiveAccount new.
+	self
+		should: [
+			Transfer
+				register: -100 * peso
+				from: emittingAccount
+				to: receivingAccount ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self
+				assert: Transfer nonPositiveTransferValueErrorDescription
+				equals: anError messageText ].! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PMB 11/8/2022 21:13:16'!
+test11BothParticipatingAccountsKnowRespectiveSidesOfTransfer
+	| receivingAccount emittingAccount transfer |
+	receivingAccount _ ReceptiveAccount new.
+	emittingAccount _ ReceptiveAccount new.
+	transfer _ Transfer
+		register: 100 * peso
+		from: emittingAccount
+		to: receivingAccount.
+	self assert: (receivingAccount hasRegistered: transfer incomingSide).
+	self assert: (emittingAccount hasRegistered: transfer outgoingSide).! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PMB 11/8/2022 21:16:57'!
+test12BothSidesOfTransferKnowTheirCounterpart
+	| receivingAccount emittingAccount transfer |
+	receivingAccount _ ReceptiveAccount new.
+	emittingAccount _ ReceptiveAccount new.
+	transfer _ Transfer
+		register: 100 * peso
+		from: emittingAccount
+		to: receivingAccount.
+	self
+		assert: transfer outgoingSide
+		equals: transfer incomingSide counterpart.
+	self
+		assert: transfer incomingSide
+		equals: transfer outgoingSide counterpart.! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -193,50 +288,6 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
-!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
-AccountTransaction subclass: #Transfer
-	instanceVariableNames: 'value deposit withdraw'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Ejercicio'!
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 19:52:23'!
-initializeFor: aValue withDeposit: aDeposit andWithdraw: aWithdraw
-	value _ aValue .
-	deposit _ aDeposit .
-	withdraw _ aWithdraw .! !
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 20:50:59'!
-value
- ^value.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
-Transfer class
-	instanceVariableNames: ''!
-
-!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/7/2022 19:54:05'!
-for: aValue withDeposit: transferDeposit andWithdraw: transferWithdraw
-	^ self new
-		initializeFor: aValue
-		withDeposit: transferDeposit
-		andWithdraw: transferWithdraw.! !
-
-!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/7/2022 20:50:24'!
-register: aValue from: anEmittingAccount to: aReceivingAccount
-	| transferDeposit transferWithdraw transfer |
-	transferDeposit _ Deposit for: aValue.
-	transferWithdraw _ Withdraw for: aValue.
-	transfer _ self
-		for: aValue
-		withDeposit: transferDeposit
-		andWithdraw: transferWithdraw.
-	anEmittingAccount register: transferWithdraw .
-	aReceivingAccount register: transferDeposit.
-	^ transfer.! !
-
-
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Withdraw
 	instanceVariableNames: 'value'
@@ -272,6 +323,30 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
+!classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Portfolio
+	instanceVariableNames: 'accounts'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Portfolio methodsFor: 'accessing' stamp: 'PMB 11/8/2022 21:36:18'!
+balance
+	^ accounts
+		sum: [ :anAccount |
+			anAccount balance ]
+		ifEmpty: [ ^ 0 * peso ].! !
+
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:34:53'!
+add: anAccount
+	accounts add: anAccount.! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:37:35'!
+initialize
+	accounts := OrderedCollection new.! !
+
+
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #ReceptiveAccount
 	instanceVariableNames: 'transactions'
@@ -285,7 +360,7 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PMB 11/7/2022 20:20:20'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PMB 11/8/2022 20:47:02'!
 balance
 	| aBalance |
 	aBalance _ 0 * peso.
@@ -309,3 +384,124 @@ register: aTransaction
 transactions 
 
 	^ transactions copy! !
+
+
+!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Transfer
+	instanceVariableNames: 'value incomingSide outgoingSide'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:04:35'!
+incomingSide
+	^ incomingSide! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:24:03'!
+initializeFor: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoingTransferSide
+	value _ aValue.
+	incomingSide _ anIncomingTransferSide.
+	outgoingSide _ anOutgoingTransferSide.! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:04:57'!
+outgoingSide
+	^ outgoingSide.! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 20:50:59'!
+value
+ ^value.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
+Transfer class
+	instanceVariableNames: ''!
+
+!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 21:06:32'!
+for: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoingTransferSide
+	^ self new
+		initializeFor: aValue
+		withIncomingSide: anIncomingTransferSide
+		andOutgoingSide: anOutgoingTransferSide.! !
+
+!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 20:34:49'!
+nonPositiveTransferValueErrorDescription
+^ 'Transfer value must be positive'.! !
+
+!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 21:25:37'!
+register: aValue from: anEmittingAccount to: aReceivingAccount
+	| incomingTransferSide outgoingTransferSide transfer |
+	aValue <= 0 ifTrue: [ self error: self nonPositiveTransferValueErrorDescription ].
+	incomingTransferSide _ IncomingSide for: aValue.
+	outgoingTransferSide _ OutgoingSide for: aValue.
+	transfer _ self
+		for: aValue
+		withIncomingSide: incomingTransferSide
+		andOutgoingSide: outgoingTransferSide.
+	anEmittingAccount register: outgoingTransferSide.
+	aReceivingAccount register: incomingTransferSide.
+	^ transfer.! !
+
+
+!classDefinition: #TransferSide category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #TransferSide
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:03:22'!
+affect: aBalance
+	self subclassResponsibility ! !
+
+!TransferSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:17:39'!
+counterpart
+	self subclassResponsibility .! !
+
+!TransferSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:01:59'!
+initializeFor: aValue
+	value := aValue ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TransferSide class' category: 'ServiciosFinancieros-Ejercicio'!
+TransferSide class
+	instanceVariableNames: ''!
+
+!TransferSide class methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:01:42'!
+for: aValue
+	^ self new initializeFor: aValue.! !
+
+
+!classDefinition: #IncomingSide category: 'ServiciosFinancieros-Ejercicio'!
+TransferSide subclass: #IncomingSide
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!IncomingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:02:49'!
+affect: aBalance
+	^ aBalance + value.
+	! !
+
+!IncomingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:18:52'!
+counterpart
+	 ^ OutgoingSide for: value.! !
+
+
+!classDefinition: #OutgoingSide category: 'ServiciosFinancieros-Ejercicio'!
+TransferSide subclass: #OutgoingSide
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!OutgoingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:02:57'!
+affect: aBalance
+	^ aBalance - value.
+	! !
+
+!OutgoingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:19:23'!
+counterpart
+	^ IncomingSide for: value.! !
