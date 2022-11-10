@@ -109,23 +109,38 @@ test07PortfolioCannotCheckTransactionsOfNotYetAddedAccount
 				assert: Portfolio accountNotInPortfolioErrorDescription
 				equals: anError messageText ].! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/9/2022 21:49:10'!
-test08PortfolioKnowsTransactionsOfChildPortfolio
-	| portfolio1 portfolio2 account deposit |
-	portfolio1 _ Portfolio new.
-	portfolio2 _ Portfolio new.
+!PortfolioTest methodsFor: 'tests' stamp: 'l 11/9/2022 22:20:52'!
+test08PortfolioHasSameBalanceAsItsSingleAccountChildPortfolio
+	| portfolio childPortfolio account |
+	portfolio _ Portfolio new.
+	childPortfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	Deposit
+		register: 100 * peso
+		on: account.
+	childPortfolio add: account.
+	portfolio add: childPortfolio.
+	self
+		assert: portfolio balance
+		equals: childPortfolio balance.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'l 11/9/2022 22:24:24'!
+test09PortfolioKnowsTransactionsOfChildPortfolio
+	| portfolio childPortfolio account deposit |
+	portfolio _ Portfolio new.
+	childPortfolio _ Portfolio new.
 	account _ ReceptiveAccount new.
 	deposit _ Deposit
 		register: 100 * peso
 		on: account.
-	portfolio1 add: account.
-	portfolio2 add: portfolio1.
-	self assert: (portfolio2 hasRegistered: deposit).
+	childPortfolio add: account.
+	portfolio add: childPortfolio.
+	self assert: (portfolio hasRegistered: deposit).
 	self
 		assert: 1
-		equals: (portfolio2 transactionsOf: account) size.
+		equals: (portfolio transactionsOf: account) size.
 	self
-		assert: (portfolio2 transactionsOf: account)
+		assert: (portfolio transactionsOf: account)
 		includes: deposit.! !
 
 
@@ -302,20 +317,25 @@ test12BothSidesOfTransferKnowTheirCounterpart
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
-	instanceVariableNames: ''
+	instanceVariableNames: 'value'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
+!AccountTransaction methodsFor: 'accesing' stamp: 'HernanWilkinson 9/12/2011 12:25'!
 value 
 
 	self subclassResponsibility ! !
 
 
-!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'PMB 11/4/2022 19:30:55'!
+!AccountTransaction methodsFor: 'operations' stamp: 'PMB 11/4/2022 19:30:55'!
 affect: aBalance
 	self subclassResponsibility ! !
+
+
+!AccountTransaction methodsFor: 'initialization' stamp: 'l 11/9/2022 23:05:47'!
+initializeFor: aValue
+	value _ aValue.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -336,24 +356,18 @@ register: aValue on: account
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Deposit
-	instanceVariableNames: 'value'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Deposit methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:45'!
-initializeFor: aValue
-
-	value := aValue ! !
-
-
-!Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
+!Deposit methodsFor: 'accesing' stamp: 'HernanWilkinson 7/13/2011 18:38'!
 value
 
 	^ value! !
 
 
-!Deposit methodsFor: 'as yet unclassified' stamp: 'PMB 11/4/2022 19:30:13'!
+!Deposit methodsFor: 'operations' stamp: 'PMB 11/4/2022 19:30:13'!
 affect: aBalance
 	^ aBalance + value.! !
 
@@ -371,24 +385,18 @@ for: aValue
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Withdraw
-	instanceVariableNames: 'value'
+	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Withdraw methodsFor: 'initialization' stamp: 'HernanWilkinson 7/13/2011 18:46'!
-initializeFor: aValue
-
-	value := aValue ! !
-
-
-!Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
+!Withdraw methodsFor: 'accesing' stamp: 'HernanWilkinson 7/13/2011 18:33'!
 value
 
 	^ value! !
 
 
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'PMB 11/4/2022 19:30:43'!
+!Withdraw methodsFor: 'operations' stamp: 'PMB 11/4/2022 19:30:43'!
 affect: aBalance
 	^ aBalance - value.! !
 
@@ -406,35 +414,44 @@ for: aValue
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Portfolio
-	instanceVariableNames: 'accounts'
+	instanceVariableNames: 'members'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Portfolio methodsFor: 'accessing' stamp: 'PMB 11/8/2022 21:36:18'!
+!Portfolio methodsFor: 'private' stamp: 'l 11/9/2022 22:56:49'!
+includes: anAccount
+	members do: [ :aMember |
+		(aMember isKindOf: ReceptiveAccount) ifTrue: [ ^ aMember = anAccount ].
+		(aMember isKindOf: Portfolio) ifTrue: [ ^ aMember includes: anAccount ]].
+	^ false.! !
+
+
+!Portfolio methodsFor: 'main protocol' stamp: 'l 11/9/2022 22:55:59'!
+add: aMember
+	members add: aMember.! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'l 11/9/2022 22:56:33'!
 balance
-	^ accounts
-		sum: [ :anAccount |
-			anAccount balance ]
+	^ members
+		sum: [ :aMember |
+			aMember balance ]
 		ifEmpty: [ ^ 0 * peso ].! !
 
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:34:53'!
-add: anAccount
-	accounts add: anAccount.! !
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/9/2022 20:14:24'!
+!Portfolio methodsFor: 'main protocol' stamp: 'l 11/9/2022 22:56:20'!
 hasRegistered: aTransaction
-	^ accounts anySatisfy: [:anAccount | anAccount hasRegistered: aTransaction ].! !
+	^ members anySatisfy: [ :aMember |
+		aMember hasRegistered: aTransaction ].! !
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:37:35'!
-initialize
-	accounts := OrderedCollection new.! !
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/9/2022 21:31:33'!
+!Portfolio methodsFor: 'main protocol' stamp: 'l 11/9/2022 22:41:19'!
 transactionsOf: anAccount
-	(accounts includes: anAccount) ifTrue: [^ anAccount transactions].
-	self class error: self class accountNotInPortfolioErrorDescription .! !
+	(self includes: anAccount) ifTrue: [ ^ anAccount transactions ].
+	self class error: self class accountNotInPortfolioErrorDescription.! !
+
+
+!Portfolio methodsFor: 'initialization' stamp: 'l 11/9/2022 22:55:50'!
+initialize
+	members := OrderedCollection new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -493,27 +510,24 @@ Object subclass: #Transfer
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:04:35'!
-incomingSide
-	^ incomingSide! !
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 19:52:23'!
-initializeFor: aValue withDeposit: aDeposit andWithdraw: aWithdraw
-	value _ aValue .
-	deposit _ aDeposit .
-	withdraw _ aWithdraw .! !
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:24:03'!
+!Transfer methodsFor: 'initialization' stamp: 'l 11/9/2022 22:07:31'!
 initializeFor: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoingTransferSide
 	value _ aValue.
+	anIncomingTransferSide counterpart: anOutgoingTransferSide.
+	anOutgoingTransferSide counterpart: anIncomingTransferSide.
 	incomingSide _ anIncomingTransferSide.
 	outgoingSide _ anOutgoingTransferSide.! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:04:57'!
+
+!Transfer methodsFor: 'accesing' stamp: 'PMB 11/8/2022 21:04:35'!
+incomingSide
+	^ incomingSide! !
+
+!Transfer methodsFor: 'accesing' stamp: 'PMB 11/8/2022 21:04:57'!
 outgoingSide
 	^ outgoingSide.! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 20:50:59'!
+!Transfer methodsFor: 'accesing' stamp: 'PMB 11/7/2022 20:50:59'!
 value
  ^value.! !
 
@@ -522,13 +536,6 @@ value
 !classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
 Transfer class
 	instanceVariableNames: ''!
-
-!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/7/2022 19:54:05'!
-for: aValue withDeposit: transferDeposit andWithdraw: transferWithdraw
-	^ self new
-		initializeFor: aValue
-		withDeposit: transferDeposit
-		andWithdraw: transferWithdraw.! !
 
 !Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 21:06:32'!
 for: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoingTransferSide
@@ -541,12 +548,12 @@ for: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoing
 nonPositiveTransferValueErrorDescription
 ^ 'Transfer value must be positive'.! !
 
-!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 21:25:37'!
+!Transfer class methodsFor: 'instance creation' stamp: 'l 11/9/2022 22:44:48'!
 register: aValue from: anEmittingAccount to: aReceivingAccount
 	| incomingTransferSide outgoingTransferSide transfer |
 	aValue <= 0 ifTrue: [ self error: self nonPositiveTransferValueErrorDescription ].
-	incomingTransferSide _ IncomingSide for: aValue.
-	outgoingTransferSide _ OutgoingSide for: aValue.
+	incomingTransferSide _ IncomingTransferSide for: aValue.
+	outgoingTransferSide _ OutgoingTransferSide for: aValue.
 	transfer _ self
 		for: aValue
 		withIncomingSide: incomingTransferSide
@@ -558,20 +565,26 @@ register: aValue from: anEmittingAccount to: aReceivingAccount
 
 !classDefinition: #TransferSide category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #TransferSide
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value counterpart'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:03:22'!
+!TransferSide methodsFor: 'accesing' stamp: 'l 11/9/2022 23:08:28'!
+counterpart
+	^ counterpart.! !
+
+
+!TransferSide methodsFor: 'operations' stamp: 'PMB 11/8/2022 21:03:22'!
 affect: aBalance
 	self subclassResponsibility ! !
 
-!TransferSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:17:39'!
-counterpart
-	self subclassResponsibility .! !
 
-!TransferSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:01:59'!
+!TransferSide methodsFor: 'initialization' stamp: 'l 11/9/2022 23:07:33'!
+counterpart: aTransferSide
+	counterpart _ aTransferSide.! !
+
+!TransferSide methodsFor: 'initialization' stamp: 'PMB 11/8/2022 21:01:59'!
 initializeFor: aValue
 	value := aValue ! !
 
@@ -586,35 +599,27 @@ for: aValue
 	^ self new initializeFor: aValue.! !
 
 
-!classDefinition: #IncomingSide category: 'ServiciosFinancieros-Ejercicio'!
-TransferSide subclass: #IncomingSide
+!classDefinition: #IncomingTransferSide category: 'ServiciosFinancieros-Ejercicio'!
+TransferSide subclass: #IncomingTransferSide
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!IncomingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:02:49'!
+!IncomingTransferSide methodsFor: 'operations' stamp: 'PMB 11/8/2022 21:02:49'!
 affect: aBalance
 	^ aBalance + value.
 	! !
 
-!IncomingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:18:52'!
-counterpart
-	 ^ OutgoingSide for: value.! !
-
 
-!classDefinition: #OutgoingSide category: 'ServiciosFinancieros-Ejercicio'!
-TransferSide subclass: #OutgoingSide
+!classDefinition: #OutgoingTransferSide category: 'ServiciosFinancieros-Ejercicio'!
+TransferSide subclass: #OutgoingTransferSide
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!OutgoingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:02:57'!
+!OutgoingTransferSide methodsFor: 'operations' stamp: 'PMB 11/8/2022 21:02:57'!
 affect: aBalance
 	^ aBalance - value.
 	! !
-
-!OutgoingSide methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:19:23'!
-counterpart
-	^ IncomingSide for: value.! !
