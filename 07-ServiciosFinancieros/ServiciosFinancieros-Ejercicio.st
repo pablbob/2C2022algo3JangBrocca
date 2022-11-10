@@ -47,6 +47,87 @@ test03PortfolioBalanceIsEqualToAccumulatedBalanceOfAllAccounts
 		assert: 300 * peso
 		equals: portfolio balance.! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/9/2022 21:41:42'!
+test04PortfolioKnowsIndividualTransactionsOfItsAccounts
+	| portfolio account deposit withdraw |
+	portfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	deposit _ Deposit
+		register: 200 * peso
+		on: account.
+	withdraw _ Withdraw
+		register: 100 * peso
+		on: account.
+	portfolio add: account.
+	self assert: (portfolio hasRegistered: deposit).
+	self assert: (portfolio hasRegistered: withdraw).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/9/2022 20:12:36'!
+test05PortfolioDoesNotKnowUnregisteredTransactions
+	| portfolio account deposit withdraw |
+	portfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	deposit _ Deposit
+		register: 200 * peso
+		on: account.
+	withdraw _ Withdraw for: 100 * peso.
+	self deny: (portfolio hasRegistered: deposit).
+	self deny: (portfolio hasRegistered: withdraw).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/9/2022 21:47:01'!
+test06PortfolioKnowsAllTransactionsOfIndividualAccount
+	| portfolio account deposit withdraw |
+	portfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	deposit _ Deposit
+		register: 200 * peso
+		on: account.
+	withdraw _ Withdraw
+		register: 100 * peso
+		on: account.
+	portfolio add: account.
+	self
+		assert: 2
+		equals: (portfolio transactionsOf: account) size.
+	self
+		assert: (portfolio transactionsOf: account)
+		includes: deposit.
+		self
+		assert: (portfolio transactionsOf: account)
+		includes: withdraw.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/9/2022 21:28:41'!
+test07PortfolioCannotCheckTransactionsOfNotYetAddedAccount
+	| portfolio account |
+	portfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	self
+		should: [ portfolio transactionsOf: account ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self
+				assert: Portfolio accountNotInPortfolioErrorDescription
+				equals: anError messageText ].! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'PMB 11/9/2022 21:49:10'!
+test08PortfolioKnowsTransactionsOfChildPortfolio
+	| portfolio1 portfolio2 account deposit |
+	portfolio1 _ Portfolio new.
+	portfolio2 _ Portfolio new.
+	account _ ReceptiveAccount new.
+	deposit _ Deposit
+		register: 100 * peso
+		on: account.
+	portfolio1 add: account.
+	portfolio2 add: portfolio1.
+	self assert: (portfolio2 hasRegistered: deposit).
+	self
+		assert: 1
+		equals: (portfolio2 transactionsOf: account) size.
+	self
+		assert: (portfolio2 transactionsOf: account)
+		includes: deposit.! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -342,9 +423,28 @@ balance
 add: anAccount
 	accounts add: anAccount.! !
 
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/9/2022 20:14:24'!
+hasRegistered: aTransaction
+	^ accounts anySatisfy: [:anAccount | anAccount hasRegistered: aTransaction ].! !
+
 !Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:37:35'!
 initialize
 	accounts := OrderedCollection new.! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'PMB 11/9/2022 21:31:33'!
+transactionsOf: anAccount
+	(accounts includes: anAccount) ifTrue: [^ anAccount transactions].
+	self class error: self class accountNotInPortfolioErrorDescription .! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'PMB 11/9/2022 21:30:00'!
+accountNotInPortfolioErrorDescription
+	^ 'This account is not included in the portfolio'! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
@@ -397,6 +497,12 @@ Object subclass: #Transfer
 incomingSide
 	^ incomingSide! !
 
+!Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/7/2022 19:52:23'!
+initializeFor: aValue withDeposit: aDeposit andWithdraw: aWithdraw
+	value _ aValue .
+	deposit _ aDeposit .
+	withdraw _ aWithdraw .! !
+
 !Transfer methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:24:03'!
 initializeFor: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoingTransferSide
 	value _ aValue.
@@ -416,6 +522,13 @@ value
 !classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
 Transfer class
 	instanceVariableNames: ''!
+
+!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/7/2022 19:54:05'!
+for: aValue withDeposit: transferDeposit andWithdraw: transferWithdraw
+	^ self new
+		initializeFor: aValue
+		withDeposit: transferDeposit
+		andWithdraw: transferWithdraw.! !
 
 !Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 21:06:32'!
 for: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoingTransferSide
