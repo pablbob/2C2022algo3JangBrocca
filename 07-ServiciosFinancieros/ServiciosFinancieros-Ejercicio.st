@@ -459,7 +459,7 @@ initialize
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'PMB 11/9/2022 21:30:00'!
+!Portfolio class methodsFor: 'error descriptions' stamp: 'PMB 11/9/2022 21:30:00'!
 accountNotInPortfolioErrorDescription
 	^ 'This account is not included in the portfolio'! !
 
@@ -537,16 +537,17 @@ value
 Transfer class
 	instanceVariableNames: ''!
 
+!Transfer class methodsFor: 'error descriptions' stamp: 'PMB 11/8/2022 20:34:49'!
+nonPositiveTransferValueErrorDescription
+^ 'Transfer value must be positive'.! !
+
+
 !Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 21:06:32'!
 for: aValue withIncomingSide: anIncomingTransferSide andOutgoingSide: anOutgoingTransferSide
 	^ self new
 		initializeFor: aValue
 		withIncomingSide: anIncomingTransferSide
 		andOutgoingSide: anOutgoingTransferSide.! !
-
-!Transfer class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 20:34:49'!
-nonPositiveTransferValueErrorDescription
-^ 'Transfer value must be positive'.! !
 
 !Transfer class methodsFor: 'instance creation' stamp: 'l 11/9/2022 22:44:48'!
 register: aValue from: anEmittingAccount to: aReceivingAccount
@@ -594,7 +595,7 @@ initializeFor: aValue
 TransferSide class
 	instanceVariableNames: ''!
 
-!TransferSide class methodsFor: 'as yet unclassified' stamp: 'PMB 11/8/2022 21:01:42'!
+!TransferSide class methodsFor: 'instance creation' stamp: 'PMB 11/8/2022 21:01:42'!
 for: aValue
 	^ self new initializeFor: aValue.! !
 
