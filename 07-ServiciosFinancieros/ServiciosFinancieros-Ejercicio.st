@@ -143,6 +143,82 @@ test09PortfolioKnowsTransactionsOfChildPortfolio
 		assert: (portfolio transactionsOf: account)
 		includes: deposit.! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'l 11/11/2022 12:15:31'!
+test10PortfolioCanNotAddTheSameAccountTwice
+	| portfolio account |
+	portfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	portfolio add: account .
+	
+	self
+		should: [
+			portfolio add: account ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self
+				assert: Portfolio accountAlreadyInPortfolioErrorDescription
+				equals: anError messageText ].! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'l 11/11/2022 12:20:43'!
+test11PortfolioCanNotAddAccountThatIsAlreadyInChildPortfolio
+	| portfolio childPortfolio account |
+	portfolio _ Portfolio new.
+	childPortfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	childPortfolio add: account.
+	portfolio add: childPortfolio .
+	self
+		should: [ portfolio add: account ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self
+				assert: Portfolio accountAlreadyInPortfolioErrorDescription
+				equals: anError messageText ].! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'l 11/11/2022 12:22:20'!
+test12PortfolioCanNotAddItself
+	| portfolio |
+	portfolio _ Portfolio new.
+	self
+		should: [ portfolio add: portfolio ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self
+				assert: Portfolio canNotAddItselfErrorDescription
+				equals: anError messageText ].! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'l 11/11/2022 12:37:27'!
+test13PortfolioCanNotAddAccountThatIsAlreadyInFatherPortfolio
+	| portfolio childPortfolio account |
+	portfolio _ Portfolio new.
+	childPortfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	portfolio add: account.
+	portfolio add: childPortfolio.
+	self
+		should: [ childPortfolio add: account ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self
+				assert: Portfolio accountAlreadyInFatherPortfolioErrorDescription
+				equals: anError messageText ].! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'l 11/11/2022 13:45:33'!
+test14PortfolioWithAccountCanNotAddPortfolioThatIncludesTheSameAccount
+	| portfolio childPortfolio account |
+	portfolio _ Portfolio new.
+	childPortfolio _ Portfolio new.
+	account _ ReceptiveAccount new.
+	portfolio add: account.
+	childPortfolio add: account.
+	self
+		should: [ portfolio add: childPortfolio ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self
+				assert: Portfolio portfolioMemberAlreadyInFatherPortfolioErrorDescription
+				equals: anError messageText ].! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -414,10 +490,14 @@ for: aValue
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Portfolio
-	instanceVariableNames: 'members'
+	instanceVariableNames: 'members father'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Portfolio methodsFor: 'private' stamp: 'l 11/11/2022 12:44:48'!
+father: aPortfolio
+	father := aPortfolio ! !
 
 !Portfolio methodsFor: 'private' stamp: 'l 11/9/2022 22:56:49'!
 includes: anAccount
@@ -426,9 +506,21 @@ includes: anAccount
 		(aMember isKindOf: Portfolio) ifTrue: [ ^ aMember includes: anAccount ]].
 	^ false.! !
 
+!Portfolio methodsFor: 'private' stamp: 'l 11/11/2022 13:45:05'!
+includesAnyMemberIn: aPortfolio
+	members do: [ :aMember |
+		(aPortfolio includes: aMember) ifTrue: [ ^ true ]].
+	^false.! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'l 11/9/2022 22:55:59'!
+
+!Portfolio methodsFor: 'main protocol' stamp: 'l 11/11/2022 13:42:57'!
 add: aMember
+	aMember = self ifTrue: [ self class error: self class canNotAddItselfErrorDescription ].
+	(self includes: aMember) ifTrue: [ self class error: self class accountAlreadyInPortfolioErrorDescription ].
+	(father includes: aMember) ifTrue: [ self class error: self class accountAlreadyInFatherPortfolioErrorDescription ].
+	(aMember isKindOf: Portfolio) ifTrue: [
+		(aMember includesAnyMemberIn: self) ifTrue: [ self class error: self class portfolioMemberAlreadyInFatherPortfolioErrorDescription ].
+		aMember father: self ].
 	members add: aMember.! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'l 11/9/2022 22:56:33'!
@@ -449,9 +541,10 @@ transactionsOf: anAccount
 	self class error: self class accountNotInPortfolioErrorDescription.! !
 
 
-!Portfolio methodsFor: 'initialization' stamp: 'l 11/9/2022 22:55:50'!
+!Portfolio methodsFor: 'initialization' stamp: 'l 11/11/2022 12:52:13'!
 initialize
-	members := OrderedCollection new.! !
+	members _ OrderedCollection new.
+	father _ EmptyPortfolio new.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -459,9 +552,42 @@ initialize
 Portfolio class
 	instanceVariableNames: ''!
 
+!Portfolio class methodsFor: 'error descriptions' stamp: 'l 11/11/2022 12:41:11'!
+accountAlreadyInFatherPortfolioErrorDescription
+	^ 'This account is already included in the father portfolio'! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'l 11/11/2022 12:17:44'!
+accountAlreadyInPortfolioErrorDescription
+	^ 'This account is already included in the portfolio'! !
+
 !Portfolio class methodsFor: 'error descriptions' stamp: 'PMB 11/9/2022 21:30:00'!
 accountNotInPortfolioErrorDescription
 	^ 'This account is not included in the portfolio'! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'l 11/11/2022 12:24:17'!
+canNotAddItselfErrorDescription
+	^ 'The portfolio cannot add itself'! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'l 11/11/2022 13:44:03'!
+portfolioMemberAlreadyInFatherPortfolioErrorDescription
+	^ 'This portfolio includes an account already included in the father portfolio'.! !
+
+
+!classDefinition: #EmptyPortfolio category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio subclass: #EmptyPortfolio
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!EmptyPortfolio methodsFor: 'initialization' stamp: 'l 11/11/2022 12:52:52'!
+initialize
+	^ self! !
+
+
+!EmptyPortfolio methodsFor: 'private' stamp: 'l 11/11/2022 12:51:45'!
+includes: aMember
+	^false! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
