@@ -53,6 +53,48 @@ test04DestinationTransferIsDisplayedCorrectly
 		assert: 'Entrada por transferencia de 100 pesos' , String newLineString , 'Balance = 100 pesos'
 		equals: (summary displayFor: destinationAccount).! !
 
+!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'l 11/14/2022 22:08:27'!
+test05OriginTransferIsDisplayedCorrectly
+	| destinationAccount originAccount summary |
+	destinationAccount _ ReceptiveAccount new.
+	originAccount _ ReceptiveAccount new.
+	summary _ AccountSummaryPrinter new.
+	Transfer
+		amount: 100
+		from: originAccount
+		to: destinationAccount.
+	self
+		assert: 'Salida por transferencia de 100 pesos' , String newLineString , 'Balance = -100 pesos'
+		equals: (summary displayFor: originAccount).! !
+
+!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'l 11/14/2022 22:13:37'!
+test06TransferNetReturnsValueOfDepositTransfer
+	| destinationAccount originAccount summary |
+	destinationAccount _ ReceptiveAccount new.
+	originAccount _ ReceptiveAccount new.
+	summary _ AccountSummaryPrinter new.
+	Transfer
+		amount: 100
+		from: originAccount
+		to: destinationAccount.
+	self
+		assert: 100
+		equals: (summary transferNetOf: destinationAccount).! !
+
+!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'l 11/14/2022 22:14:03'!
+test07TransferNetReturnsValueOfWithdrawTransfer
+	| destinationAccount originAccount summary |
+	destinationAccount _ ReceptiveAccount new.
+	originAccount _ ReceptiveAccount new.
+	summary _ AccountSummaryPrinter new.
+	Transfer
+		amount: 100
+		from: originAccount
+		to: destinationAccount.
+	self
+		assert: -100
+		equals: (summary transferNetOf: originAccount).! !
+
 
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros2-Ejercicio'!
 TestCase subclass: #PortfolioTest
@@ -360,6 +402,68 @@ test07AccountKnowsItsTransactions
 ! !
 
 
+!classDefinition: #TransferNetTest category: 'ServiciosFinancieros2-Ejercicio'!
+TestCase subclass: #TransferNetTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:08:43'!
+test01TransferNetOfAccountWithoutTransfersReturnsZero
+	| account transferNet |
+	account := ReceptiveAccount new.
+	transferNet := TransferNet new.
+	self assert: 0 * peso equals: (transferNet transferNetOf: account).! !
+
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:13:16'!
+test02TransferNetReturnsValueOfIncomingTransfer
+	| originAccount destinationAccount transferNet |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	transferNet := TransferNet new.
+	Transfer amount: 100 * peso from: originAccount to: destinationAccount.
+	self assert: 100 * peso equals: (transferNet transferNetOf: destinationAccount ).! !
+
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:13:43'!
+test03TransferNetReturnsValueOfOutgoingTransfer
+	| originAccount destinationAccount transferNet |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	transferNet := TransferNet new.
+	Transfer amount: 100 * peso from: originAccount to: destinationAccount.
+	self assert: -100 * peso equals: (transferNet transferNetOf: originAccount ).! !
+
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:23:20'!
+test04TransferNetReturnsBalanceOfAllTransfers
+	| originAccount destinationAccount transferNet |
+	originAccount := ReceptiveAccount new.
+	destinationAccount := ReceptiveAccount new.
+	transferNet := TransferNet new.
+	Transfer amount: 100 * peso from: originAccount to: destinationAccount.
+	Transfer amount: 50 * peso from: destinationAccount to: originAccount.
+	Transfer amount: 200 * peso from: originAccount to: destinationAccount.
+	Transfer amount: 100 * peso from: destinationAccount to: originAccount.
+	self assert: -150 * peso equals: (transferNet transferNetOf: originAccount ).
+	self assert: 150 * peso equals: (transferNet transferNetOf: destinationAccount ).! !
+
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:17:10'!
+test05TransferNetDoesNotDetectDeposits
+	| account  transferNet |
+	account := ReceptiveAccount new.
+	transferNet := TransferNet new.
+	Deposit register: 100 * peso on: account.
+	self assert: 0 * peso equals: (transferNet transferNetOf: account ).! !
+
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:17:15'!
+test06TransferNetDoesNotDetectWithdraws
+	| account  transferNet |
+	account := ReceptiveAccount new.
+	transferNet := TransferNet new.
+	Withdraw register: 100 * peso on: account.
+	self assert: 0 * peso equals: (transferNet transferNetOf: account ).! !
+
+
 !classDefinition: #TransferTest category: 'ServiciosFinancieros2-Ejercicio'!
 TestCase subclass: #TransferTest
 	instanceVariableNames: ''
@@ -367,7 +471,7 @@ TestCase subclass: #TransferTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 21:07:03'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 21:07:03'!
 test01ATransferDecreasesBalanceFromOriginAccountAndIncreasesItForDestinationAccount
 
 	| destinationAccount originAccount |
@@ -383,7 +487,7 @@ test01ATransferDecreasesBalanceFromOriginAccountAndIncreasesItForDestinationAcco
 	self assert: 8 * peso equals: originAccount balance.
 	self assert: 12 * peso equals: destinationAccount balance.! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 21:12:28'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 21:12:28'!
 test02ATransferKnowsItsValue
 
 	| destinationAccount originAccount transfer |
@@ -398,7 +502,7 @@ test02ATransferKnowsItsValue
 	
 	self assert: 2 * peso equals: transfer value.! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:01:44'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:01:44'!
 test03DepositLegKnowsItsWithdrawCounterpart
 
 	| destinationAccount originAccount transfer |
@@ -413,7 +517,7 @@ test03DepositLegKnowsItsWithdrawCounterpart
 	
 	self assert: transfer withdrawLeg equals: transfer depositLeg withdrawLeg! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:01:51'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:01:51'!
 test04WithdrawLegKnowsItsDepositCounterpart
 
 	| destinationAccount originAccount transfer |
@@ -428,7 +532,7 @@ test04WithdrawLegKnowsItsDepositCounterpart
 	
 	self assert: transfer depositLeg equals: transfer withdrawLeg depositLeg! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:02:36'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:02:36'!
 test05OriginAndDestinationAccountsCannotBeTheSame
 
 	| originAccount |
@@ -444,7 +548,7 @@ test05OriginAndDestinationAccountsCannotBeTheSame
 		]
 ! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:02:44'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:02:44'!
 test06CannotTransferAZeroAmount
 
 	| originAccount destinationAccount |
@@ -703,16 +807,49 @@ Object subclass: #AccountSummaryPrinter
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!AccountSummaryPrinter methodsFor: 'printing' stamp: 'PMB 11/14/2022 21:14:37'!
+!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:03:28'!
+addBalanceOf: aBalanceValue to: aString
+	^ aString , 'Balance = ' , aBalanceValue amount asString , ' pesos'.! !
+
+!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 21:55:28'!
+addDepositOf: aDepositValue to: aString
+	^ aString , 'Deposito por ' , aDepositValue amount asString , ' pesos' , String newLineString! !
+
+!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:00:27'!
+addTransferDepositOf: aTransferDepositValue to: aString
+	^ aString , 'Entrada por transferencia de ' , aTransferDepositValue amount asString , ' pesos' , String newLineString.! !
+
+!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:01:26'!
+addTransferWithdrawOf: aTransferWithdrawValue to: aString
+	^ aString , 'Salida por transferencia de ' , aTransferWithdrawValue amount asString , ' pesos' , String newLineString.! !
+
+!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 21:59:09'!
+addWithdrawOf: aWithdrawValue to: aString
+	^ aString , 'Extraccion por ' , aWithdrawValue amount asString , ' pesos' , String newLineString.! !
+
+!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:04:04'!
 displayFor: anAccount
 	| displayString |
+	anAccount transactions ifEmpty: [ ^ 'No hay transacciones para mostrar' ].
 	displayString _ ''.
 	anAccount transactions do: [ :aTransaction |
-		(aTransaction isKindOf: Deposit) ifTrue: [ displayString _ displayString , 'Deposito por ' , aTransaction value amount asString , ' pesos' , String newLineString ].
-		(aTransaction isKindOf: Withdraw) ifTrue: [ displayString _ displayString , 'Extraccion por ' , aTransaction value amount asString , ' pesos' , String newLineString ].
-		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [ displayString _ displayString , 'Entrada por transferencia de ' , aTransaction value amount asString , ' pesos' , String newLineString ].
-		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [ displayString _ displayString , 'Salida por transferencia de ' , aTransaction value amount asString , ' pesos' , String newLineString ]].
-	displayString _ displayString , 'Balance = ' , anAccount balance amount asString, ' pesos'.
+		(aTransaction isKindOf: Deposit) ifTrue: [
+			displayString _ self
+				addDepositOf: aTransaction value
+				to: displayString ].
+		(aTransaction isKindOf: Withdraw) ifTrue: [
+			displayString _ self
+				addWithdrawOf: aTransaction value
+				to: displayString ].
+		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [
+			displayString _ self
+				addTransferDepositOf: aTransaction value
+				to: displayString ].
+		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [
+			displayString _ self
+				addTransferWithdrawOf: aTransaction value
+				to: displayString ]].
+	displayString _ self addBalanceOf: anAccount balance to: displayString.
 	^ displayString.! !
 
 
@@ -993,3 +1130,22 @@ amount: anAmountOfMoney from: originAccount to: destinationAccount
 	
 	
 	! !
+
+
+!classDefinition: #TransferNet category: 'ServiciosFinancieros2-Ejercicio'!
+Object subclass: #TransferNet
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!TransferNet methodsFor: 'as yet unclassified' stamp: 'l 11/14/2022 23:03:29'!
+transferNetOf: anAccount 
+	| transferBalance |
+	transferBalance _ 0 * peso.
+	anAccount transactions do: [ :aTransaction |
+		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [
+			transferBalance _ transferBalance + aTransaction value].
+		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [
+			transferBalance _ transferBalance - aTransaction value ]].
+	^ transferBalance.! !
