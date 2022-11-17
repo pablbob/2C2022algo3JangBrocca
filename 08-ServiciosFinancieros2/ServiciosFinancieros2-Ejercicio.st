@@ -1,30 +1,32 @@
-!classDefinition: #AccountSummaryPrinterTest category: 'ServiciosFinancieros2-Ejercicio'!
-TestCase subclass: #AccountSummaryPrinterTest
+!classDefinition: #AccountSummaryTest category: 'ServiciosFinancieros2-Ejercicio'!
+TestCase subclass: #AccountSummaryTest
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'PMB 11/14/2022 19:04:28'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:19:07'!
 test01AccountWithNoTransactionsDisplaysCorrespondingMessage
 	| account summary |
-	account := ReceptiveAccount new.
-	summary := AccountSummaryPrinter new.
-	self assert: 'No hay transacciones para mostrar' equals: (summary displayFor: account). ! !
+	account _ ReceptiveAccount new.
+	summary _ AccountSummary of: account transactions .
+	self
+		assert: 'No hay transacciones para mostrar'
+		equals: (summary reportData).! !
 
-!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'PMB 11/14/2022 20:37:56'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:25:45'!
 test02SingleDepositIsDisplayedCorrectly
 	| account summary |
 	account _ ReceptiveAccount new.
 	Deposit
 		register: 100 * peso
 		on: account.
-	summary _ AccountSummaryPrinter new.
+	summary _ AccountSummary of: account transactions.
 	self
-		assert: 'Deposito por 100 pesos' , String newLineString , 'Balance = 100 pesos'
-		equals: (summary displayFor: account).! !
+		assert: 'Depósito por 100 pesos' , String newLineString , 'Balance = 100 pesos'
+		equals: summary reportData.! !
 
-!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'PMB 11/14/2022 20:37:19'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:25:53'!
 test03WithdrawAfterDepositIsDisplayedCorrectly
 	| account summary |
 	account _ ReceptiveAccount new.
@@ -34,66 +36,38 @@ test03WithdrawAfterDepositIsDisplayedCorrectly
 	Withdraw
 		register: 50 * peso
 		on: account.
-	summary _ AccountSummaryPrinter new.
+	summary _ AccountSummary of: account transactions.
 	self
-		assert: 'Deposito por 100 pesos' , String newLineString , 'Extraccion por 50 pesos', String newLineString , 'Balance = 50 pesos'
-		equals: (summary displayFor: account).! !
+		assert: 'Depósito por 100 pesos' , String newLineString , 'Extracción por 50 pesos' , String newLineString , 'Balance = 50 pesos'
+		equals: summary reportData.! !
 
-!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'PMB 11/14/2022 21:15:08'!
-test04DestinationTransferIsDisplayedCorrectly
+!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:19:40'!
+test04TransferDepositIsDisplayedCorrectly
 	| destinationAccount originAccount summary |
 	destinationAccount _ ReceptiveAccount new.
 	originAccount _ ReceptiveAccount new.
-	summary _ AccountSummaryPrinter new.
+	summary _ AccountSummary of: destinationAccount transactions.
 	Transfer
 		amount: 100
 		from: originAccount
 		to: destinationAccount.
 	self
 		assert: 'Entrada por transferencia de 100 pesos' , String newLineString , 'Balance = 100 pesos'
-		equals: (summary displayFor: destinationAccount).! !
+		equals: summary reportData.! !
 
-!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'l 11/14/2022 22:08:27'!
-test05OriginTransferIsDisplayedCorrectly
+!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:19:42'!
+test05TransferWithdrawIsDisplayedCorrectly
 	| destinationAccount originAccount summary |
 	destinationAccount _ ReceptiveAccount new.
 	originAccount _ ReceptiveAccount new.
-	summary _ AccountSummaryPrinter new.
+	summary _ AccountSummary of: originAccount transactions.
 	Transfer
 		amount: 100
 		from: originAccount
 		to: destinationAccount.
 	self
 		assert: 'Salida por transferencia de 100 pesos' , String newLineString , 'Balance = -100 pesos'
-		equals: (summary displayFor: originAccount).! !
-
-!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'l 11/14/2022 22:13:37'!
-test06TransferNetReturnsValueOfDepositTransfer
-	| destinationAccount originAccount summary |
-	destinationAccount _ ReceptiveAccount new.
-	originAccount _ ReceptiveAccount new.
-	summary _ AccountSummaryPrinter new.
-	Transfer
-		amount: 100
-		from: originAccount
-		to: destinationAccount.
-	self
-		assert: 100
-		equals: (summary transferNetOf: destinationAccount).! !
-
-!AccountSummaryPrinterTest methodsFor: 'tests' stamp: 'l 11/14/2022 22:14:03'!
-test07TransferNetReturnsValueOfWithdrawTransfer
-	| destinationAccount originAccount summary |
-	destinationAccount _ ReceptiveAccount new.
-	originAccount _ ReceptiveAccount new.
-	summary _ AccountSummaryPrinter new.
-	Transfer
-		amount: 100
-		from: originAccount
-		to: destinationAccount.
-	self
-		assert: -100
-		equals: (summary transferNetOf: originAccount).! !
+		equals: summary reportData.! !
 
 
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros2-Ejercicio'!
@@ -409,59 +383,96 @@ TestCase subclass: #TransferNetTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:08:43'!
-test01TransferNetOfAccountWithoutTransfersReturnsZero
+!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:28:34'!
+test01TransferNetOfAccountWithoutTransfersReturnsCorrespondingMessage
 	| account transferNet |
-	account := ReceptiveAccount new.
-	transferNet := TransferNet new.
-	self assert: 0 * peso equals: (transferNet transferNetOf: account).! !
+	account _ ReceptiveAccount new.
+	transferNet _ TransferNet of: account transactions.
+	self
+		assert: 'No hay transferencias registradas'
+		equals: transferNet reportData.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:13:16'!
+!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:31:25'!
 test02TransferNetReturnsValueOfIncomingTransfer
 	| originAccount destinationAccount transferNet |
-	originAccount := ReceptiveAccount new.
-	destinationAccount := ReceptiveAccount new.
-	transferNet := TransferNet new.
-	Transfer amount: 100 * peso from: originAccount to: destinationAccount.
-	self assert: 100 * peso equals: (transferNet transferNetOf: destinationAccount ).! !
+	originAccount _ ReceptiveAccount new.
+	destinationAccount _ ReceptiveAccount new.
+	transferNet _ TransferNet of: destinationAccount transactions .
+	Transfer
+		amount: 100 * peso
+		from: originAccount
+		to: destinationAccount.
+	self
+		assert: 'El neto de transferencias es de 100 pesos'
+		equals: transferNet reportData.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:13:43'!
+!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:32:22'!
 test03TransferNetReturnsValueOfOutgoingTransfer
 	| originAccount destinationAccount transferNet |
-	originAccount := ReceptiveAccount new.
-	destinationAccount := ReceptiveAccount new.
-	transferNet := TransferNet new.
-	Transfer amount: 100 * peso from: originAccount to: destinationAccount.
-	self assert: -100 * peso equals: (transferNet transferNetOf: originAccount ).! !
+	originAccount _ ReceptiveAccount new.
+	destinationAccount _ ReceptiveAccount new.
+	transferNet _ TransferNet of: originAccount transactions.
+	Transfer
+		amount: 100 * peso
+		from: originAccount
+		to: destinationAccount.
+	self
+		assert: 'El neto de transferencias es de -100 pesos'
+		equals: transferNet reportData.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:23:20'!
+!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:34:47'!
 test04TransferNetReturnsBalanceOfAllTransfers
-	| originAccount destinationAccount transferNet |
-	originAccount := ReceptiveAccount new.
-	destinationAccount := ReceptiveAccount new.
-	transferNet := TransferNet new.
-	Transfer amount: 100 * peso from: originAccount to: destinationAccount.
-	Transfer amount: 50 * peso from: destinationAccount to: originAccount.
-	Transfer amount: 200 * peso from: originAccount to: destinationAccount.
-	Transfer amount: 100 * peso from: destinationAccount to: originAccount.
-	self assert: -150 * peso equals: (transferNet transferNetOf: originAccount ).
-	self assert: 150 * peso equals: (transferNet transferNetOf: destinationAccount ).! !
+	| originAccount destinationAccount originTransferNet destinationTransferNet |
+	originAccount _ ReceptiveAccount new.
+	destinationAccount _ ReceptiveAccount new.
+	originTransferNet _ TransferNet of: originAccount transactions .
+	destinationTransferNet _ TransferNet of: destinationAccount transactions .
+	Transfer
+		amount: 100 * peso
+		from: originAccount
+		to: destinationAccount.
+	Transfer
+		amount: 50 * peso
+		from: destinationAccount
+		to: originAccount.
+	Transfer
+		amount: 200 * peso
+		from: originAccount
+		to: destinationAccount.
+	Transfer
+		amount: 100 * peso
+		from: destinationAccount
+		to: originAccount.
+	self
+		assert: 'El neto de transferencias es de -150 pesos'
+		equals: originTransferNet reportData.
+	self
+		assert: 'El neto de transferencias es de 150 pesos'
+		equals: destinationTransferNet reportData.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:17:10'!
+!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:30:35'!
 test05TransferNetDoesNotDetectDeposits
-	| account  transferNet |
-	account := ReceptiveAccount new.
-	transferNet := TransferNet new.
-	Deposit register: 100 * peso on: account.
-	self assert: 0 * peso equals: (transferNet transferNetOf: account ).! !
+	| account transferNet |
+	account _ ReceptiveAccount new.
+	transferNet _ TransferNet of: account transactions .
+	Deposit
+		register: 100 * peso
+		on: account.
+	self
+		assert: 'No hay transferencias registradas'
+		equals: transferNet reportData.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'l 11/14/2022 23:17:15'!
+!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:30:27'!
 test06TransferNetDoesNotDetectWithdraws
-	| account  transferNet |
-	account := ReceptiveAccount new.
-	transferNet := TransferNet new.
-	Withdraw register: 100 * peso on: account.
-	self assert: 0 * peso equals: (transferNet transferNetOf: account ).! !
+	| account transferNet |
+	account _ ReceptiveAccount new.
+	transferNet _ TransferNet of: account transactions.
+	Withdraw
+		register: 100 * peso
+		on: account.
+	self
+		assert: 'No hay transferencias registradas'
+		equals: transferNet reportData.! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros2-Ejercicio'!
@@ -800,59 +811,6 @@ isComposedBy: anAccount
 	^self = anAccount ! !
 
 
-!classDefinition: #AccountSummaryPrinter category: 'ServiciosFinancieros2-Ejercicio'!
-Object subclass: #AccountSummaryPrinter
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros2-Ejercicio'!
-
-!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:03:28'!
-addBalanceOf: aBalanceValue to: aString
-	^ aString , 'Balance = ' , aBalanceValue amount asString , ' pesos'.! !
-
-!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 21:55:28'!
-addDepositOf: aDepositValue to: aString
-	^ aString , 'Deposito por ' , aDepositValue amount asString , ' pesos' , String newLineString! !
-
-!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:00:27'!
-addTransferDepositOf: aTransferDepositValue to: aString
-	^ aString , 'Entrada por transferencia de ' , aTransferDepositValue amount asString , ' pesos' , String newLineString.! !
-
-!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:01:26'!
-addTransferWithdrawOf: aTransferWithdrawValue to: aString
-	^ aString , 'Salida por transferencia de ' , aTransferWithdrawValue amount asString , ' pesos' , String newLineString.! !
-
-!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 21:59:09'!
-addWithdrawOf: aWithdrawValue to: aString
-	^ aString , 'Extraccion por ' , aWithdrawValue amount asString , ' pesos' , String newLineString.! !
-
-!AccountSummaryPrinter methodsFor: 'printing' stamp: 'l 11/14/2022 22:04:04'!
-displayFor: anAccount
-	| displayString |
-	anAccount transactions ifEmpty: [ ^ 'No hay transacciones para mostrar' ].
-	displayString _ ''.
-	anAccount transactions do: [ :aTransaction |
-		(aTransaction isKindOf: Deposit) ifTrue: [
-			displayString _ self
-				addDepositOf: aTransaction value
-				to: displayString ].
-		(aTransaction isKindOf: Withdraw) ifTrue: [
-			displayString _ self
-				addWithdrawOf: aTransaction value
-				to: displayString ].
-		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [
-			displayString _ self
-				addTransferDepositOf: aTransaction value
-				to: displayString ].
-		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [
-			displayString _ self
-				addTransferWithdrawOf: aTransaction value
-				to: displayString ]].
-	displayString _ self addBalanceOf: anAccount balance to: displayString.
-	^ displayString.! !
-
-
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros2-Ejercicio'!
 Object subclass: #AccountTransaction
 	instanceVariableNames: ''
@@ -870,6 +828,11 @@ value
 affectBalance: aBalance
 
 	self subclassResponsibility ! !
+
+
+!AccountTransaction methodsFor: 'reporting' stamp: 'PMB 11/16/2022 21:38:32'!
+xxx: aTransactionReport
+	self subclassResponsibility.! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros2-Ejercicio'!
@@ -895,6 +858,11 @@ value
 affectBalance: aBalance
 
 	^aBalance + value ! !
+
+
+!Deposit methodsFor: 'reporting' stamp: 'PMB 11/16/2022 21:38:46'!
+xxx: aTransactionReport
+	^ aTransactionReport xxxDeposit: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -937,6 +905,11 @@ initializeWith: aTransfer
 
 	transfer := aTransfer! !
 
+
+!TransferLeg methodsFor: 'reporting' stamp: 'PMB 11/16/2022 21:39:30'!
+xxx: aTransactionReport
+	self subclassResponsibility.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'TransferLeg class' category: 'ServiciosFinancieros2-Ejercicio'!
@@ -972,6 +945,11 @@ affectBalance: aBalance
 
 	^aBalance + self value! !
 
+
+!TransferDepositLeg methodsFor: 'reporting' stamp: 'PMB 11/16/2022 21:40:04'!
+xxx: aTransactionReport
+	^ aTransactionReport xxxTransferDeposit: self.! !
+
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros2-Ejercicio'!
 TransferLeg subclass: #TransferWithdrawLeg
@@ -990,6 +968,11 @@ depositLeg
 affectBalance: aBalance
 
 	^aBalance - self value! !
+
+
+!TransferWithdrawLeg methodsFor: 'reporting' stamp: 'PMB 11/16/2022 21:39:50'!
+xxx: aTransactionReport
+	^ aTransactionReport xxxTransferWithdraw: self.! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros2-Ejercicio'!
@@ -1016,6 +999,11 @@ affectBalance: aBalance
 
 	^aBalance - value! !
 
+
+!Withdraw methodsFor: 'reporting' stamp: 'PMB 11/16/2022 21:39:13'!
+xxx: aTransactionReport
+	^ aTransactionReport xxxWithdraw: self.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Withdraw class' category: 'ServiciosFinancieros2-Ejercicio'!
@@ -1037,6 +1025,120 @@ register: aValue on: account
 	account register: transaction.
 		
 	^ transaction! !
+
+
+!classDefinition: #TransactionReport category: 'ServiciosFinancieros2-Ejercicio'!
+Object subclass: #TransactionReport
+	instanceVariableNames: 'transactions dataToDisplay netBalance'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!TransactionReport methodsFor: 'initialization' stamp: 'PMB 11/16/2022 20:41:09'!
+initializeWith: aListOfTransactions
+	self subclassResponsibility.! !
+
+
+!TransactionReport methodsFor: 'operations' stamp: 'PMB 11/16/2022 22:30:49'!
+addToBalance: aValue
+	netBalance := netBalance + aValue! !
+
+!TransactionReport methodsFor: 'operations' stamp: 'PMB 11/16/2022 22:31:04'!
+substractFromBalance: aValue
+	netBalance _ netBalance - aValue.! !
+
+
+!TransactionReport methodsFor: 'printing' stamp: 'PMB 11/16/2022 23:23:06'!
+printToString: aCollectionOfStrings
+	| displayString |
+	displayString _ ''.
+	aCollectionOfStrings do: [ :aString | displayString ifNotEmpty: [ displayString _ displayString , String newLineString , aString ] ifEmpty: [ displayString  _ aString ]].
+	^displayString ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TransactionReport class' category: 'ServiciosFinancieros2-Ejercicio'!
+TransactionReport class
+	instanceVariableNames: ''!
+
+!TransactionReport class methodsFor: 'instance creation' stamp: 'PMB 11/16/2022 23:16:31'!
+of: aListOfTransactions
+	^ self new initializeWith: aListOfTransactions.! !
+
+
+!classDefinition: #AccountSummary category: 'ServiciosFinancieros2-Ejercicio'!
+TransactionReport subclass: #AccountSummary
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!AccountSummary methodsFor: 'reporting' stamp: 'PMB 11/16/2022 23:24:56'!
+reportData
+transactions ifEmpty: [ ^ 'No hay transacciones para mostrar' ].
+	transactions do: [ :aTransaction |
+		aTransaction xxx: self ].
+	dataToDisplay add: 'Balance = ' , netBalance amount asString , ' pesos'.
+	^ self printToString: dataToDisplay.! !
+
+!AccountSummary methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:36:21'!
+xxxDeposit: aDeposit
+	self addToBalance: aDeposit value.
+	dataToDisplay add:  'Depósito por ' , aDeposit value amount asString , ' pesos'.! !
+
+!AccountSummary methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:36:25'!
+xxxTransferDeposit: aTransferDeposit
+	self addToBalance: aTransferDeposit value.
+	dataToDisplay add:  'Entrada por transferencia de ' , aTransferDeposit value amount asString , ' pesos'.! !
+
+!AccountSummary methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:36:29'!
+xxxTransferWithdraw: aTransferWithdraw
+	self substractFromBalance: aTransferWithdraw value.
+	dataToDisplay add:  'Salida por transferencia de ' , aTransferWithdraw value amount asString , ' pesos'.! !
+
+!AccountSummary methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:36:32'!
+xxxWithdraw: aWithdraw
+	self substractFromBalance: aWithdraw value.
+	dataToDisplay add:  'Extracción por ' , aWithdraw value amount asString , ' pesos'.! !
+
+
+!AccountSummary methodsFor: 'initialization' stamp: 'PMB 11/16/2022 23:21:33'!
+initializeWith: aListOfTransactions
+	transactions _ aListOfTransactions.
+	dataToDisplay _ OrderedCollection new.
+	netBalance _ 0 * peso.! !
+
+
+!classDefinition: #TransferNet category: 'ServiciosFinancieros2-Ejercicio'!
+TransactionReport subclass: #TransferNet
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!TransferNet methodsFor: 'initialization' stamp: 'PMB 11/16/2022 23:21:44'!
+initializeWith: aListOfTransactions
+	transactions _ aListOfTransactions select: [ :aTransaction |
+		aTransaction isKindOf: TransferLeg ].
+	dataToDisplay _ OrderedCollection new.
+	netBalance _ 0 * peso.! !
+
+
+!TransferNet methodsFor: 'reporting' stamp: 'PMB 11/16/2022 23:24:34'!
+reportData
+	transactions ifEmpty:  [^ 'No hay transferencias registradas'].
+	transactions do: [ :aTransfer |
+		aTransfer xxx: self ].
+	dataToDisplay add: 'El neto de transferencias es de ' , netBalance amount , ' pesos'.
+	^ self printToString: dataToDisplay.! !
+
+!TransferNet methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:39:53'!
+xxxTransferDeposit: aTransferDeposit
+	self addToBalance: aTransferDeposit value.! !
+
+!TransferNet methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:40:08'!
+xxxTransferWithdraw: aTransferWithdraw
+	self substractFromBalance: aTransferWithdraw value.! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros2-Ejercicio'!
@@ -1130,22 +1232,3 @@ amount: anAmountOfMoney from: originAccount to: destinationAccount
 	
 	
 	! !
-
-
-!classDefinition: #TransferNet category: 'ServiciosFinancieros2-Ejercicio'!
-Object subclass: #TransferNet
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros2-Ejercicio'!
-
-!TransferNet methodsFor: 'as yet unclassified' stamp: 'l 11/14/2022 23:03:29'!
-transferNetOf: anAccount 
-	| transferBalance |
-	transferBalance _ 0 * peso.
-	anAccount transactions do: [ :aTransaction |
-		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [
-			transferBalance _ transferBalance + aTransaction value].
-		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [
-			transferBalance _ transferBalance - aTransaction value ]].
-	^ transferBalance.! !
