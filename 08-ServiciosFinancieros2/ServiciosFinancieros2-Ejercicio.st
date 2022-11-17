@@ -5,16 +5,16 @@ TestCase subclass: #AccountSummaryTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:19:07'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:47'!
 test01AccountWithNoTransactionsDisplaysCorrespondingMessage
 	| account summary |
 	account _ ReceptiveAccount new.
 	summary _ AccountSummary of: account transactions .
 	self
 		assert: 'No hay transacciones para mostrar'
-		equals: (summary reportData).! !
+		equals: (summary reportDataTabing: 0).! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:25:45'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test02SingleDepositIsDisplayedCorrectly
 	| account summary |
 	account _ ReceptiveAccount new.
@@ -24,9 +24,9 @@ test02SingleDepositIsDisplayedCorrectly
 	summary _ AccountSummary of: account transactions.
 	self
 		assert: 'Depósito por 100 pesos' , String newLineString , 'Balance = 100 pesos'
-		equals: summary reportData.! !
+		equals: summary reportData: 0.! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:25:53'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test03WithdrawAfterDepositIsDisplayedCorrectly
 	| account summary |
 	account _ ReceptiveAccount new.
@@ -39,35 +39,63 @@ test03WithdrawAfterDepositIsDisplayedCorrectly
 	summary _ AccountSummary of: account transactions.
 	self
 		assert: 'Depósito por 100 pesos' , String newLineString , 'Extracción por 50 pesos' , String newLineString , 'Balance = 50 pesos'
-		equals: summary reportData.! !
+		equals: summary reportData: 0.! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:19:40'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test04TransferDepositIsDisplayedCorrectly
 	| destinationAccount originAccount summary |
 	destinationAccount _ ReceptiveAccount new.
 	originAccount _ ReceptiveAccount new.
-	summary _ AccountSummary of: destinationAccount transactions.
 	Transfer
 		amount: 100
 		from: originAccount
 		to: destinationAccount.
+	summary _ AccountSummary of: destinationAccount transactions.
 	self
 		assert: 'Entrada por transferencia de 100 pesos' , String newLineString , 'Balance = 100 pesos'
-		equals: summary reportData.! !
+		equals: summary reportData: 0.! !
 
-!AccountSummaryTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:19:42'!
+!AccountSummaryTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test05TransferWithdrawIsDisplayedCorrectly
 	| destinationAccount originAccount summary |
 	destinationAccount _ ReceptiveAccount new.
 	originAccount _ ReceptiveAccount new.
-	summary _ AccountSummary of: originAccount transactions.
 	Transfer
 		amount: 100
 		from: originAccount
 		to: destinationAccount.
+	summary _ AccountSummary of: originAccount transactions.
 	self
 		assert: 'Salida por transferencia de 100 pesos' , String newLineString , 'Balance = -100 pesos'
-		equals: summary reportData.! !
+		equals: summary reportData: 0.! !
+
+
+!classDefinition: #PortfolioDetailedTreePrinterTest category: 'ServiciosFinancieros2-Ejercicio'!
+TestCase subclass: #PortfolioDetailedTreePrinterTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 18:56:27'!
+test01PortfolioDetailedTreePrinterOfEmptyPortfolioPrintsPortfoliosNameAndItsBalance
+	| portfolioDetailedTreePrinter portfolio |
+	portfolio _ Portfolio named: 'Portfolio'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: portfolioDetailedTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Balance = 0 pesos'.! !
+
+!PortfolioDetailedTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:02:09'!
+test02PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	portfolio add: nicksAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: portfolioDetailedTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Cuenta de Nick' , String newLineString , '        Balance = 0 pesos' , String newLineString , '    Balance = 0 pesos'.! !
 
 
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros2-Ejercicio'!
@@ -285,6 +313,119 @@ test15PortfolioCanNotIncludeAnyOfTheComposedAccountOfPortfolioToAdd
 			self assert: portfolioToModify accountsIsEmpty ]! !
 
 
+!classDefinition: #PortfolioTreePrinterTest category: 'ServiciosFinancieros2-Ejercicio'!
+TestCase subclass: #PortfolioTreePrinterTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 17:01:17'!
+test01PortfolioTreePrinterOfEmptyPortfolioPrintsPortfoliosName
+	| portfolioTreePrinter portfolio |
+	portfolio := Portfolio  named: 'Portfolio'.
+	portfolioTreePrinter := PortfolioTreePrinter of: portfolio.
+	self assert: portfolioTreePrinter display equals: 'Portfolio'! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 17:30:45'!
+test02PortfolioTreePrinterOfPortfolioWithSingleAccountPrintsCorrectly
+	| portfolioTreePrinter portfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	portfolio add: nicksAccount.
+	portfolioTreePrinter _ PortfolioTreePrinter of: portfolio.
+	self
+		assert: portfolioTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Cuenta de Nick'.! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 18:06:44'!
+test03PortfolioTreePrinterOfPortfolioWithMultipleAccountsPrintsCorrectly
+	| portfolioTreePrinter portfolio nicksAccount juliesAccount joeysAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	joeysAccount _ ReceptiveAccount named: 'Cuenta de Joey'.
+	portfolio add: nicksAccount.
+	portfolio add: juliesAccount.
+	portfolio add: joeysAccount.
+	portfolioTreePrinter _ PortfolioTreePrinter of: portfolio.
+	self
+		assert: portfolioTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Cuenta de Nick' , String newLineString , '    Cuenta de Julie' , String newLineString , '    Cuenta de Joey'.! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 17:34:48'!
+test04PortfolioTreePrinterOfPortfolioWithChildPortfolioPrintsCorrectly
+	
+	| portfolioTreePrinter portfolio childPortfolio |
+	portfolio _ Portfolio named: 'Portfolio'.
+	childPortfolio _ Portfolio named: 'Child portfolio'.
+	portfolio add: childPortfolio.
+	portfolioTreePrinter _ PortfolioTreePrinter of: portfolio.
+	self
+		assert: portfolioTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Child portfolio'.! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 17:39:23'!
+test05PortfolioTreePrinterOfPortfolioWithAccountAndChildPortfolioPrintsCorrectly
+	| portfolioTreePrinter portfolio childPortfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	childPortfolio _ Portfolio named: 'Child portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	portfolio add: nicksAccount.
+	portfolio add: childPortfolio.
+	portfolioTreePrinter _ PortfolioTreePrinter of: portfolio.
+	self
+		assert: portfolioTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Cuenta de Nick' , String newLineString , '    Child portfolio'.! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 17:39:11'!
+test06PortfolioTreePrinterOfPortfolioWithChildPortfolioWithAccountPrintsCorrectly
+	| portfolioTreePrinter portfolio childPortfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	childPortfolio _ Portfolio named: 'Child portfolio'.
+	childPortfolio add: nicksAccount.
+	portfolio add: childPortfolio.
+	portfolioTreePrinter _ PortfolioTreePrinter of: portfolio.
+	self
+		assert: portfolioTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Child portfolio' , String newLineString , '        Cuenta de Nick'.! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 18:08:27'!
+test07PortfolioTreePrinterOfPortfolioWithAccountAndChildPortfolioWithAccountPrintsCorrectly
+	| portfolioTreePrinter portfolio childPortfolio nicksAccount juliesAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	childPortfolio _ Portfolio named: 'Child portfolio'.
+	portfolio add: nicksAccount.
+	childPortfolio add: juliesAccount.
+	portfolio add: childPortfolio.
+	portfolioTreePrinter _ PortfolioTreePrinter of: portfolio.
+	self
+		assert: portfolioTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Cuenta de Nick' , String newLineString , '    Child portfolio' , String newLineString , '        Cuenta de Julie'.! !
+
+!PortfolioTreePrinterTest methodsFor: 'tests' stamp: 'l 11/17/2022 18:12:32'!
+test08PortfolioTreePrinterOfPortfolioWithMultipleAccountsAndChildPortfolioWithMultipleAccountsPrintsCorrectly
+	| portfolioTreePrinter portfolio childPortfolio nicksAccount juliesAccount joeysAccount charliesAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	joeysAccount _ ReceptiveAccount named: 'Cuenta de Joey'.
+	charliesAccount _ ReceptiveAccount named: 'Cuenta de Charlie'.
+	childPortfolio _ Portfolio named: 'Child portfolio'.
+	portfolio add: nicksAccount.
+	portfolio add: juliesAccount.
+	childPortfolio add: joeysAccount.
+	childPortfolio add: charliesAccount.
+	portfolio add: childPortfolio.
+	portfolioTreePrinter _ PortfolioTreePrinter of: portfolio.
+	self
+		assert: portfolioTreePrinter display
+		equals: 'Portfolio' , String newLineString , '    Cuenta de Nick' , String newLineString , '    Cuenta de Julie' , String newLineString , '    Child portfolio' , String newLineString , '        Cuenta de Joey', String newLineString , '        Cuenta de Charlie'.! !
+
+
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros2-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
 	instanceVariableNames: ''
@@ -383,50 +524,48 @@ TestCase subclass: #TransferNetTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:28:34'!
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test01TransferNetOfAccountWithoutTransfersReturnsCorrespondingMessage
 	| account transferNet |
 	account _ ReceptiveAccount new.
 	transferNet _ TransferNet of: account transactions.
 	self
 		assert: 'No hay transferencias registradas'
-		equals: transferNet reportData.! !
+		equals: transferNet reportData: 0.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:31:25'!
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test02TransferNetReturnsValueOfIncomingTransfer
 	| originAccount destinationAccount transferNet |
 	originAccount _ ReceptiveAccount new.
 	destinationAccount _ ReceptiveAccount new.
-	transferNet _ TransferNet of: destinationAccount transactions .
 	Transfer
 		amount: 100 * peso
 		from: originAccount
 		to: destinationAccount.
+	transferNet _ TransferNet of: destinationAccount transactions.
 	self
 		assert: 'El neto de transferencias es de 100 pesos'
-		equals: transferNet reportData.! !
+		equals: transferNet reportData: 0.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:32:22'!
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test03TransferNetReturnsValueOfOutgoingTransfer
 	| originAccount destinationAccount transferNet |
 	originAccount _ ReceptiveAccount new.
 	destinationAccount _ ReceptiveAccount new.
-	transferNet _ TransferNet of: originAccount transactions.
 	Transfer
 		amount: 100 * peso
 		from: originAccount
 		to: destinationAccount.
+	transferNet _ TransferNet of: originAccount transactions.
 	self
 		assert: 'El neto de transferencias es de -100 pesos'
-		equals: transferNet reportData.! !
+		equals: transferNet reportData: 0.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:34:47'!
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test04TransferNetReturnsBalanceOfAllTransfers
 	| originAccount destinationAccount originTransferNet destinationTransferNet |
 	originAccount _ ReceptiveAccount new.
 	destinationAccount _ ReceptiveAccount new.
-	originTransferNet _ TransferNet of: originAccount transactions .
-	destinationTransferNet _ TransferNet of: destinationAccount transactions .
 	Transfer
 		amount: 100 * peso
 		from: originAccount
@@ -443,36 +582,38 @@ test04TransferNetReturnsBalanceOfAllTransfers
 		amount: 100 * peso
 		from: destinationAccount
 		to: originAccount.
+	originTransferNet _ TransferNet of: originAccount transactions.
+	destinationTransferNet _ TransferNet of: destinationAccount transactions.
 	self
 		assert: 'El neto de transferencias es de -150 pesos'
-		equals: originTransferNet reportData.
+		equals: originTransferNet reportData: 0.
 	self
 		assert: 'El neto de transferencias es de 150 pesos'
-		equals: destinationTransferNet reportData.! !
+		equals: destinationTransferNet reportData: 0.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:30:35'!
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test05TransferNetDoesNotDetectDeposits
 	| account transferNet |
 	account _ ReceptiveAccount new.
-	transferNet _ TransferNet of: account transactions .
 	Deposit
 		register: 100 * peso
 		on: account.
+	transferNet _ TransferNet of: account transactions.
 	self
 		assert: 'No hay transferencias registradas'
-		equals: transferNet reportData.! !
+		equals: transferNet reportData: 0.! !
 
-!TransferNetTest methodsFor: 'tests' stamp: 'PMB 11/16/2022 23:30:27'!
+!TransferNetTest methodsFor: 'tests' stamp: 'l 11/17/2022 19:24:01'!
 test06TransferNetDoesNotDetectWithdraws
 	| account transferNet |
 	account _ ReceptiveAccount new.
-	transferNet _ TransferNet of: account transactions.
 	Withdraw
 		register: 100 * peso
 		on: account.
+	transferNet _ TransferNet of: account transactions.
 	self
 		assert: 'No hay transferencias registradas'
-		equals: transferNet reportData.! !
+		equals: transferNet reportData: 0.! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros2-Ejercicio'!
@@ -581,7 +722,7 @@ test06CannotTransferAZeroAmount
 
 !classDefinition: #Account category: 'ServiciosFinancieros2-Ejercicio'!
 Object subclass: #Account
-	instanceVariableNames: ''
+	instanceVariableNames: 'name'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
@@ -618,6 +759,26 @@ addTransactionsTo: aCollectionOfTransactions
 
 	self subclassResponsibility ! !
 
+
+!Account methodsFor: 'nil' stamp: 'l 11/17/2022 17:19:01'!
+named: aName
+	name := aName ! !
+
+
+!Account methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 17:22:15'!
+name
+	^name! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Account class' category: 'ServiciosFinancieros2-Ejercicio'!
+Account class
+	instanceVariableNames: ''!
+
+!Account class methodsFor: 'nil' stamp: 'l 11/17/2022 17:09:17'!
+named: aName
+	^ self new named: aName.! !
+
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros2-Ejercicio'!
 Account subclass: #Portfolio
@@ -632,6 +793,10 @@ initialize
 	accounts := OrderedCollection new.
 	parents := OrderedCollection new.! !
 
+
+!Portfolio methodsFor: 'main protocol' stamp: 'l 11/17/2022 17:26:43'!
+accounts
+	^ accounts .! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:19:36'!
 balance
@@ -669,14 +834,11 @@ accountsSize
 	
 	^accounts size! !
 
-!Portfolio methodsFor: 'accounts management' stamp: 'HAW 5/25/2019 12:19:20'!
+!Portfolio methodsFor: 'accounts management' stamp: 'l 11/17/2022 15:14:29'!
 add: accountToAdd
-
 	self assertCanAdd: accountToAdd.
-		
 	accounts add: accountToAdd.
-	accountToAdd addedTo: self 
-	! !
+	accountToAdd addedTo: self.! !
 
 
 !Portfolio methodsFor: 'private' stamp: 'HAW 5/25/2019 11:42:55'!
@@ -1027,6 +1189,129 @@ register: aValue on: account
 	^ transaction! !
 
 
+!classDefinition: #PortfolioReport category: 'ServiciosFinancieros2-Ejercicio'!
+Object subclass: #PortfolioReport
+	instanceVariableNames: 'portfolio displayString'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!PortfolioReport methodsFor: 'initialization' stamp: 'l 11/17/2022 19:54:59'!
+of: aPortfolio
+	portfolio _ aPortfolio.
+	displayString := aPortfolio name.! !
+
+
+!PortfolioReport methodsFor: 'private' stamp: 'l 11/17/2022 19:03:04'!
+tabs: aNumberOfTabs
+	| tabs |
+	tabs _ ''.
+	aNumberOfTabs timesRepeat: [ tabs _ tabs , '    ' ].
+	^ tabs.! !
+
+
+!PortfolioReport methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:51:38'!
+addAccount: anAccount tabbing: aNumberOfTabs
+	self subclassResponsibility.! !
+
+!PortfolioReport methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:54:59'!
+addNewLineTabbing: aNumbresOfTabs
+	displayString _ displayString , String newLineString , (self tabs: aNumbresOfTabs).! !
+
+!PortfolioReport methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:51:47'!
+addPortfolio: anAccount tabbing: aNumberOfTabs
+	self subclassResponsibility.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PortfolioReport class' category: 'ServiciosFinancieros2-Ejercicio'!
+PortfolioReport class
+	instanceVariableNames: ''!
+
+!PortfolioReport class methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 18:59:16'!
+of: aPortfolio
+	^self new of: aPortfolio ! !
+
+
+!classDefinition: #PortfolioDetailedTreePrinter category: 'ServiciosFinancieros2-Ejercicio'!
+PortfolioReport subclass: #PortfolioDetailedTreePrinter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:54:59'!
+addAccount: anAccount tabbing: aNumberOfTabs
+	displayString _ displayString , anAccount name , String newLineString , ((AccountSummary of: anAccount transactions) reportDataTabing: aNumberOfTabs + 1).! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:54:59'!
+addPortfolio: anAccount tabbing: aNumberOfTabs
+	 displayString _ displayString , ((PortfolioDetailedTreePrinter of: anAccount) displayTimes: aNumberOfTabs + 1)! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:28:02'!
+display
+	^ self displayTimes: 1.! !
+
+!PortfolioDetailedTreePrinter methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:54:59'!
+displayTimes: aNumberOfTimes
+	portfolio accounts do: [ :anAccount |
+		self addNewLineTabbing: aNumberOfTimes.
+		(anAccount isKindOf: ReceptiveAccount) ifTrue: [
+			self
+				addAccount: anAccount
+				tabbing: aNumberOfTimes ].
+		(anAccount isKindOf: Portfolio) ifTrue: [
+			self
+				addPortfolio: anAccount
+				tabbing: aNumberOfTimes ]].
+	self addNewLineTabbing: aNumberOfTimes.
+	displayString _ displayString , 'Balance = ' , portfolio balance amount asString , ' pesos'.
+	^ displayString.! !
+
+
+!classDefinition: #PortfolioTreePrinter category: 'ServiciosFinancieros2-Ejercicio'!
+PortfolioReport subclass: #PortfolioTreePrinter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros2-Ejercicio'!
+
+!PortfolioTreePrinter methodsFor: 'private' stamp: 'l 11/17/2022 19:54:59'!
+displayTimes: aNumberOfTimes
+	portfolio accounts do: [ :anAccount |
+		self addNewLineTabbing: aNumberOfTimes.
+		(anAccount isKindOf: ReceptiveAccount) ifTrue: [
+			self
+				addAccount: anAccount
+				tabbing: 0 ].
+		(anAccount isKindOf: Portfolio) ifTrue: [
+			self
+				addPortfolio: anAccount
+				tabbing: aNumberOfTimes ]].
+	^ displayString.! !
+
+
+
+!PortfolioTreePrinter methodsFor: 'printing' stamp: 'l 11/17/2022 17:56:47'!
+display
+	^ self displayTimes: 1.! !
+
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:54:59'!
+addAccount: anAccount tabbing: aNumberOfTabs
+	displayString _ displayString , anAccount name.! !
+
+!PortfolioTreePrinter methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:54:59'!
+addPortfolio: anAccount tabbing: aNumberOfTabs
+	displayString _ displayString , ((PortfolioTreePrinter of: anAccount) displayTimes: aNumberOfTabs + 1)! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PortfolioTreePrinter class' category: 'ServiciosFinancieros2-Ejercicio'!
+PortfolioTreePrinter class
+	instanceVariableNames: 'portfolio'!
+
+
 !classDefinition: #TransactionReport category: 'ServiciosFinancieros2-Ejercicio'!
 Object subclass: #TransactionReport
 	instanceVariableNames: 'transactions dataToDisplay netBalance'
@@ -1048,12 +1333,22 @@ substractFromBalance: aValue
 	netBalance _ netBalance - aValue.! !
 
 
-!TransactionReport methodsFor: 'printing' stamp: 'PMB 11/16/2022 23:23:06'!
-printToString: aCollectionOfStrings
+!TransactionReport methodsFor: 'printing' stamp: 'l 11/17/2022 19:17:56'!
+printToString: aCollectionOfStrings tabing: aNumberOfTabs
 	| displayString |
 	displayString _ ''.
-	aCollectionOfStrings do: [ :aString | displayString ifNotEmpty: [ displayString _ displayString , String newLineString , aString ] ifEmpty: [ displayString  _ aString ]].
-	^displayString ! !
+	aCollectionOfStrings do: [ :aString |
+		displayString ifEmpty: [ displayString _  (self tabs: aNumberOfTabs), aString ]
+			ifNotEmpty: [ displayString _ displayString , String newLineString , (self tabs: aNumberOfTabs) , aString ]].
+	^ displayString.! !
+
+
+!TransactionReport methodsFor: 'as yet unclassified' stamp: 'l 11/17/2022 19:09:38'!
+tabs: aNumberOfTabs
+	| tabs |
+	tabs _ ''.
+	aNumberOfTabs timesRepeat: [ tabs _ tabs , '    ' ].
+	^ tabs.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1073,13 +1368,15 @@ TransactionReport subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Ejercicio'!
 
-!AccountSummary methodsFor: 'reporting' stamp: 'PMB 11/16/2022 23:24:56'!
-reportData
-transactions ifEmpty: [ ^ 'No hay transacciones para mostrar' ].
+!AccountSummary methodsFor: 'reporting' stamp: 'l 11/17/2022 19:24:46'!
+reportDataTabing: aNumberOfTabs
+	transactions ifEmpty: [ ^ 'No hay transacciones para mostrar' ].
 	transactions do: [ :aTransaction |
 		aTransaction xxx: self ].
 	dataToDisplay add: 'Balance = ' , netBalance amount asString , ' pesos'.
-	^ self printToString: dataToDisplay.! !
+	^ self
+		printToString: dataToDisplay
+		tabing: aNumberOfTabs.! !
 
 !AccountSummary methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:36:21'!
 xxxDeposit: aDeposit
@@ -1124,13 +1421,13 @@ initializeWith: aListOfTransactions
 	netBalance _ 0 * peso.! !
 
 
-!TransferNet methodsFor: 'reporting' stamp: 'PMB 11/16/2022 23:24:34'!
-reportData
-	transactions ifEmpty:  [^ 'No hay transferencias registradas'].
+!TransferNet methodsFor: 'reporting' stamp: 'l 11/17/2022 19:24:47'!
+reportDataTabing: aNumberOfTabs
+	transactions ifEmpty: [ ^ 'No hay transferencias registradas' ].
 	transactions do: [ :aTransfer |
 		aTransfer xxx: self ].
-	dataToDisplay add: 'El neto de transferencias es de ' , netBalance amount , ' pesos'.
-	^ self printToString: dataToDisplay.! !
+	dataToDisplay add: 'El neto de transferencias es de ' , netBalance amount asString , ' pesos'.
+	^ self printToString: dataToDisplay tabing: 0.! !
 
 !TransferNet methodsFor: 'reporting' stamp: 'PMB 11/16/2022 22:39:53'!
 xxxTransferDeposit: aTransferDeposit
