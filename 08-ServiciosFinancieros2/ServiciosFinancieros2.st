@@ -139,8 +139,8 @@ test09PortfolioDetailedTreePrinterOfEmptyPortfolioPrintsPortfoliosNameAndItsBala
 		assert: 'Portfolio' , nl , tab , 'Balance = 0 pesos'
 		equals: portfolioDetailedTreePrinter reportData .! !
 
-!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 09:28:46'!
-test10PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountPrintsCorrectly
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 12:30:51'!
+test10PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountWithNoTransactionsPrintsCorrectly
 	| portfolioDetailedTreePrinter portfolio nicksAccount |
 	portfolio _ Portfolio named: 'Portfolio'.
 	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
@@ -148,6 +148,102 @@ test10PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountPrintsCorrectly
 	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
 	self
 		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Balance = 0 pesos' , nl , tab , 'Balance = 0 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 12:50:42'!
+test11PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountWithDepositPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	Deposit
+		register: 100
+		on: nicksAccount.
+	portfolio add: nicksAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Depósito por 100 pesos' , nl , tab , tab , 'Balance = 100 pesos' , nl , tab , 'Balance = 100 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 12:51:01'!
+test12PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountWithWithdrawPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	Withdraw
+		register: 50
+		on: nicksAccount.
+	portfolio add: nicksAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab  , 'Extracción por 50 pesos' , nl , tab , tab , 'Balance = -50 pesos' , nl , tab , 'Balance = -50 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 12:55:44'!
+test13PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountWithTransferDepositPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio nicksAccount juliesAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	Transfer
+		amount: 100
+		from: juliesAccount
+		to: nicksAccount.
+	portfolio add: nicksAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Entrada por transferencia de 100 pesos' , nl , tab , tab , 'Balance = 100 pesos' , nl , tab , 'Balance = 100 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 12:56:20'!
+test14PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountWithTransferWithdrawPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio nicksAccount juliesAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	Transfer
+		amount: 100
+		from: nicksAccount
+		to: juliesAccount.
+	portfolio add: nicksAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Salida por transferencia de 100 pesos' , nl , tab , tab , 'Balance = -100 pesos' , nl , tab , 'Balance = -100 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 12:58:46'!
+test15PortfolioDetailedTreePrinterOfPortfolioWithMultipleAccountsWithNoTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio nicksAccount juliesAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	portfolio add: nicksAccount.
+	portfolio add: juliesAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Balance = 0 pesos' , nl , tab ,'Cuenta de Julie' , nl , tab , tab , 'Balance = 0 pesos' , nl , tab, 'Balance = 0 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'PMB 11/18/2022 13:05:40'!
+test16PortfolioDetailedTreePrinterOfPortfolioWithMultipleAccountsWithMultipleTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio nicksAccount juliesAccount |
+	portfolio _ Portfolio named: 'Portfolio'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	Deposit
+		register: 200 * peso
+		on: nicksAccount.
+	Transfer
+		amount: 100 * peso
+		from: nicksAccount
+		to: juliesAccount.
+	Withdraw
+		register: 50 * peso
+		on: juliesAccount.
+	portfolio add: nicksAccount.
+	portfolio add: juliesAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	self
+		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , 'Salida por transferencia de 100 pesos' , nl , tab , tab , 'Balance = 100 pesos' , nl , tab , 'Cuenta de Julie' , nl , tab , tab , 'Entrada por transferencia de 100 pesos' , nl , tab , tab , 'Extracción por 50 pesos' , nl , tab , tab , 'Balance = 50 pesos' , nl , tab , 'Balance = 150 pesos'
 		equals: portfolioDetailedTreePrinter reportData.! !
 
 
@@ -158,8 +254,8 @@ ReportTest subclass: #TransactionReportTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Reportes'!
 
-!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/17/2022 21:18:52'!
-test01AccountWithNoTransactionsDisplaysCorrespondingMessage
+!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/18/2022 12:39:11'!
+test01AccountSummaryOfAccountWithNoTransactionsDisplaysCorrespondingMessage
 	| account summary |
 	account _ ReceptiveAccount new.
 	summary _ AccountSummary of: account transactions.
@@ -167,8 +263,8 @@ test01AccountWithNoTransactionsDisplaysCorrespondingMessage
 		assert: 'No hay transacciones para mostrar'
 		equals: (summary reportData).! !
 
-!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/17/2022 21:25:34'!
-test02SingleDepositIsDisplayedCorrectly
+!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/18/2022 12:39:30'!
+test02AccountSummaryWithSingleDepositIsDisplayedCorrectly
 	| account summary |
 	account _ ReceptiveAccount new.
 	Deposit
@@ -179,8 +275,8 @@ test02SingleDepositIsDisplayedCorrectly
 		assert: 'Depósito por 100 pesos' , nl , 'Balance = 100 pesos'
 		equals: summary reportData.! !
 
-!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/17/2022 21:25:47'!
-test03WithdrawAfterDepositIsDisplayedCorrectly
+!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/18/2022 12:40:05'!
+test03AccountSummaryWithWithdrawAfterDepositIsDisplayedCorrectly
 	| account summary |
 	account _ ReceptiveAccount new.
 	Deposit
@@ -194,8 +290,8 @@ test03WithdrawAfterDepositIsDisplayedCorrectly
 		assert: 'Depósito por 100 pesos' ,nl , 'Extracción por 50 pesos' , nl , 'Balance = 50 pesos'
 		equals: summary reportData.! !
 
-!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/17/2022 21:25:51'!
-test04TransferDepositIsDisplayedCorrectly
+!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/18/2022 12:40:28'!
+test04AccountSummaryWithTransferDepositIsDisplayedCorrectly
 	| destinationAccount originAccount summary |
 	destinationAccount _ ReceptiveAccount new.
 	originAccount _ ReceptiveAccount new.
@@ -208,8 +304,8 @@ test04TransferDepositIsDisplayedCorrectly
 		assert: 'Entrada por transferencia de 100 pesos' , nl , 'Balance = 100 pesos'
 		equals: summary reportData.! !
 
-!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/17/2022 21:25:57'!
-test05TransferWithdrawIsDisplayedCorrectly
+!TransactionReportTest methodsFor: 'AccountSummary-tests' stamp: 'PMB 11/18/2022 12:40:39'!
+test05AccountSummaryWithTransferWithdrawIsDisplayedCorrectly
 	| destinationAccount originAccount summary |
 	destinationAccount _ ReceptiveAccount new.
 	originAccount _ ReceptiveAccount new.
