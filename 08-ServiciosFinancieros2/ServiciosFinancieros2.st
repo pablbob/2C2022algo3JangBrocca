@@ -246,6 +246,189 @@ test16PortfolioDetailedTreePrinterOfPortfolioWithMultipleAccountsWithMultipleTra
 		assert: 'Portfolio' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , 'Salida por transferencia de 100 pesos' , nl , tab , tab , 'Balance = 100 pesos' , nl , tab , 'Cuenta de Julie' , nl , tab , tab , 'Entrada por transferencia de 100 pesos' , nl , tab , tab , 'Extracción por 50 pesos' , nl , tab , tab , 'Balance = 50 pesos' , nl , tab , 'Balance = 150 pesos'
 		equals: portfolioDetailedTreePrinter reportData.! !
 
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 14:10:45'!
+test17PortfolioDetailedTreePrinterOfPortfolioWithEmptyChildPortfolioPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Balance = 0 pesos' , nl , tab , 'Balance = 0 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 14:17:51'!
+test18PortfolioDetailedTreePrinterOfPortfolioWithChildPortfolioWithSingleAccountWithNoTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	childPortfolio add: nicksAccount .
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Cuenta de Nick', nl, tab, tab, tab , 'Balance = 0 pesos' , nl, tab, tab ,'Balance = 0 pesos', nl , tab , 'Balance = 0 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 14:26:55'!
+test19PortfolioDetailedTreePrinterOfPortfolioWithChildPortfolioWithSingleAccountWithMultipleTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio nicksAccount juliesAccount |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	Deposit
+		register: 200 * peso
+		on: nicksAccount.
+	Withdraw
+		register: 50 * peso
+		on: nicksAccount.
+	Transfer
+		amount: 100 * peso
+		from: nicksAccount
+		to: juliesAccount.
+	Transfer
+		amount: 50 * peso
+		from: juliesAccount
+		to: nicksAccount.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	childPortfolio add: nicksAccount.
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Cuenta de Nick' , nl , tab , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , tab , 'Extracción por 50 pesos' , nl , tab , tab , tab , 'Salida por transferencia de 100 pesos' , nl , tab , tab , tab , 'Entrada por transferencia de 50 pesos' , nl , tab , tab , tab , 'Balance = 100 pesos' , nl , tab , tab , 'Balance = 100 pesos' , nl , tab , 'Balance = 100 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 14:48:14'!
+test20PortfolioDetailedTreePrinterOfPortfolioWithChildPortfolioWithMultipleAccountsWithNoTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio nicksAccount juliesAccount charliesAccount |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	charliesAccount _ ReceptiveAccount named: 'Cuenta de Charlie'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	childPortfolio add: nicksAccount.
+	childPortfolio add: juliesAccount.
+	childPortfolio add: charliesAccount.
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Cuenta de Nick'  , nl , tab , tab , tab , 'Balance = 0 pesos' , nl , tab , tab , 'Cuenta de Julie'  , nl , tab , tab , tab , 'Balance = 0 pesos' , nl , tab , tab , 'Cuenta de Charlie'  , nl , tab , tab , tab , 'Balance = 0 pesos' , nl , tab , tab , 'Balance = 0 pesos' , nl , tab , 'Balance = 0 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 14:55:08'!
+test21PortfolioDetailedTreePrinterOfPortfolioWithChildPortfolioWithMultipleAccountsWithMultipleTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio nicksAccount juliesAccount charliesAccount |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	charliesAccount _ ReceptiveAccount named: 'Cuenta de Charlie'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	Deposit
+		register: 200 * peso
+		on: nicksAccount.
+	Withdraw
+		register: 50 * peso
+		on: juliesAccount.
+	Transfer
+		amount: 100 * peso
+		from: nicksAccount
+		to: charliesAccount.
+	Transfer
+		amount: 50 * peso
+		from: charliesAccount
+		to: juliesAccount.
+	childPortfolio add: nicksAccount.
+	childPortfolio add: juliesAccount.
+	childPortfolio add: charliesAccount.
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Cuenta de Nick' , nl , tab , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , tab , 'Salida por transferencia de 100 pesos' , nl , tab , tab , tab , 'Balance = 100 pesos' , nl , tab , tab , 'Cuenta de Julie' , nl , tab , tab , tab , 'Extracción por 50 pesos' , nl , tab , tab , tab , 'Entrada por transferencia de 50 pesos' , nl , tab , tab , tab , 'Balance = 0 pesos' , nl , tab , tab , 'Cuenta de Charlie' , nl , tab , tab , tab , 'Entrada por transferencia de 100 pesos' , nl , tab , tab , tab , 'Salida por transferencia de 50 pesos' , nl , tab , tab , tab , 'Balance = 50 pesos' , nl , tab , tab , 'Balance = 150 pesos' , nl , tab , 'Balance = 150 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 15:24:17'!
+test22PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountWithMultipleTransactionAndEmptyChildPortfolioPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio nicksAccount |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	Deposit
+		register: 200 * peso
+		on: nicksAccount.
+	Withdraw
+		register: 50 * peso
+		on: nicksAccount.
+	portfolio add: nicksAccount.
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , 'Extracción por 50 pesos' , nl , tab , tab , 'Balance = 150 pesos' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Balance = 0 pesos' , nl , tab , 'Balance = 150 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 15:28:58'!
+test23PortfolioDetailedTreePrinterOfPortfolioWithSingleAccountWithMultipleTransactionAndChildPortfolioWithSingleAccountWithMultipleTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio nicksAccount juliesAccount |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	Deposit
+		register: 200 * peso
+		on: nicksAccount.
+	Withdraw
+		register: 100 * peso
+		on: juliesAccount.
+	Transfer
+		amount: 50 * peso
+		from: nicksAccount
+		to: juliesAccount.
+	portfolio add: nicksAccount.
+	childPortfolio add: juliesAccount.
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , 'Salida por transferencia de 50 pesos' , nl , tab , tab , 'Balance = 150 pesos' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Cuenta de Julie' , nl , tab , tab , tab , 'Extracción por 100 pesos' , nl , tab , tab , tab , 'Entrada por transferencia de 50 pesos' , nl , tab , tab , tab , 'Balance = -50 pesos' , nl , tab , tab , 'Balance = -50 pesos' , nl , tab , 'Balance = 100 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
+!PortfolioReportTest methodsFor: 'PortfolioDetailedTreePrinter-tests' stamp: 'l 11/18/2022 15:24:42'!
+test24PortfolioDetailedTreePrinterOfPortfolioWithMultipleAccountsWithMultipleTransactionAndChildPortfolioWithMultipleAccountsWithMultipleTransactionsPrintsCorrectly
+	| portfolioDetailedTreePrinter portfolio childPortfolio nicksAccount juliesAccount charliesAccount joeysAccount |
+	portfolio _ Portfolio named: 'Portfolio A'.
+	childPortfolio _ Portfolio named: 'Portfolio B'.
+	nicksAccount _ ReceptiveAccount named: 'Cuenta de Nick'.
+	juliesAccount _ ReceptiveAccount named: 'Cuenta de Julie'.
+	charliesAccount _ ReceptiveAccount named: 'Cuenta de Charlie'.
+	joeysAccount _ ReceptiveAccount named: 'Cuenta de Joey'.
+	portfolioDetailedTreePrinter _ PortfolioDetailedTreePrinter of: portfolio.
+	Deposit
+		register: 200 * peso
+		on: nicksAccount.
+	Deposit
+		register: 200 * peso
+		on: joeysAccount.
+	Withdraw
+		register: 50 * peso
+		on: juliesAccount.
+	Withdraw
+		register: 50 * peso
+		on: charliesAccount.
+	Transfer
+		amount: 100 * peso
+		from: nicksAccount
+		to: charliesAccount.
+	Transfer
+		amount: 50 * peso
+		from: joeysAccount
+		to: juliesAccount.
+	portfolio add: nicksAccount.
+	portfolio add: juliesAccount.
+	childPortfolio add: charliesAccount.
+	childPortfolio add: joeysAccount.
+	portfolio add: childPortfolio.
+	self
+		assert: 'Portfolio A' , nl , tab , 'Cuenta de Nick' , nl , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , 'Salida por transferencia de 100 pesos' , nl , tab , tab , 'Balance = 100 pesos' , nl , tab , 'Cuenta de Julie' , nl , tab , tab , 'Extracción por 50 pesos' , nl , tab , tab , 'Entrada por transferencia de 50 pesos' , nl , tab , tab , 'Balance = 0 pesos' , nl , tab , 'Portfolio B' , nl , tab , tab , 'Cuenta de Charlie' , nl , tab , tab , tab , 'Extracción por 50 pesos' , nl , tab , tab , tab , 'Entrada por transferencia de 100 pesos' , nl , tab , tab , tab , 'Balance = 50 pesos' , nl , tab , tab , 'Cuenta de Joey' , nl , tab , tab , tab , 'Depósito por 200 pesos' , nl , tab , tab , tab , 'Salida por transferencia de 50 pesos' , nl , tab , tab , tab , 'Balance = 150 pesos' , nl , tab , tab , 'Balance = 200 pesos' , nl , tab , 'Balance = 300 pesos'
+		equals: portfolioDetailedTreePrinter reportData.! !
+
 
 !classDefinition: #TransactionReportTest category: 'ServiciosFinancieros2-Reportes'!
 ReportTest subclass: #TransactionReportTest
@@ -440,6 +623,11 @@ printToString: aCollectionOfLines
 reportData
 	self subclassResponsibility ! !
 
+
+!Report methodsFor: 'accessing' stamp: 'l 11/18/2022 14:09:26'!
+dataToDisplay
+	^ dataToDisplay ! !
+
 
 !classDefinition: #PortfolioReport category: 'ServiciosFinancieros2-Reportes'!
 Report subclass: #PortfolioReport
@@ -511,9 +699,9 @@ reportData
 	^ self printToString: dataToDisplay.! !
 
 
-!PortfolioDetailedTreePrinter methodsFor: 'private' stamp: 'PMB 11/18/2022 09:53:56'!
+!PortfolioDetailedTreePrinter methodsFor: 'private' stamp: 'l 11/18/2022 14:14:19'!
 addPortfolioToDisplayData: aPortfolio tabbing: aNumberOfTabs
-	dataToDisplay addAllLast: ((PortfolioDetailedTreePrinter of: aPortfolio) addAccountsToDisplayDataTabbing: aNumberOfTabs + 1).! !
+	dataToDisplay addAllLast: ((PortfolioDetailedTreePrinter of: aPortfolio) prepareDataTabbing: aNumberOfTabs + 1).! !
 
 !PortfolioDetailedTreePrinter methodsFor: 'private' stamp: 'PMB 11/18/2022 12:05:20'!
 addReceptiveAccountToDisplayData: anAccount tabbing: aNumberOfTabs
@@ -598,10 +786,6 @@ Report subclass: #TransactionReport
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros2-Reportes'!
-
-!TransactionReport methodsFor: 'accessing' stamp: 'PMB 11/17/2022 23:37:38'!
-dataToDisplay
-	^ dataToDisplay ! !
 
 
 !TransactionReport methodsFor: 'initialization' stamp: 'PMB 11/18/2022 09:37:51'!
